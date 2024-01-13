@@ -1,2 +1,2 @@
 # olorun
-Netcore + Mongodb + Postgresql+Redis + Kafka
+Netcore + Mongodb + Postgresql + Redis + Kafka
