@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -102,8 +103,21 @@ public class Repository : IRepository
     public Repository(
         IOptions<BookStoreDatabaseSettings> bookStoreDatabaseSettings)
     {
-        var mongoClient = new MongoClient(
-            bookStoreDatabaseSettings.Value.ConnectionString);
+        MongoClientSettings settings = new MongoClientSettings();
+        settings.Server = new MongoServerAddress("mongodb", 27017);
+        settings.UseTls = true;
+        //settings.SslSettings = new SslSettings() { 
+        //    EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12 
+        //};
+
+        MongoIdentity identity = new MongoInternalIdentity("sales", "sales");
+        MongoIdentityEvidence evidence = new PasswordEvidence("sales");
+
+        settings.Credential = new MongoCredential("SCRAM-SHA-256", identity, evidence);
+
+        var mongoClient = new MongoClient(settings);
+        //var mongoClient = new MongoClient(
+        //    bookStoreDatabaseSettings.Value.ConnectionString);        
 
         var mongoDatabase = mongoClient.GetDatabase(
             bookStoreDatabaseSettings.Value.DatabaseName);
@@ -137,4 +151,33 @@ public class BookStoreDatabaseSettings
     public string DatabaseName { get; set; } = null!;
 
     public string BooksCollectionName { get; set; } = null!;
+}
+class KafkaMessageConsumer :
+        IConsumer<WeatherForecastEvent>
+{
+    private readonly IRepository _repository;
+
+    public KafkaMessageConsumer(IRepository repository)
+    {
+        _repository = repository;
+    }
+
+    public async Task Consume(ConsumeContext<WeatherForecastEvent> context)
+    {
+        WeatherForecastEvent mensagem = context.Message;
+        WeatherForecast clima = new WeatherForecast(mensagem.Date, mensagem.TemperatureC, mensagem.Summary)
+        {
+            Id = mensagem.Id
+        };
+        await _repository.CreateAsync(clima);
+    }
+}
+
+public record WeatherForecastEvent
+{
+    public Guid Id { get; init; }
+    public DateOnly Date { get; init; }
+    public int TemperatureC { get; init; }
+    public string? Summary { get; init; }
+    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }

@@ -1,3 +1,5 @@
+using MassTransit;
+using Microsoft.AspNetCore.Mvc;
 using Pagamento.Model;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,9 +11,28 @@ builder.Services.AddSwaggerGen();
 //Mongo
 builder.Services.Configure<BookStoreDatabaseSettings>(
     builder.Configuration.GetSection("BookStoreDatabase"));
+builder.Services.AddSingleton<IRepository, Repository>();
 //Redis
 //Kafka
-builder.Services.AddSingleton<IRepository, Repository>();
+//builder.Services.AddMassTransit(x =>
+//{
+//    x.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context));
+
+//    x.AddRider(rider =>
+//    {
+//        rider.AddConsumer<KafkaMessageConsumer>();
+
+//        rider.UsingKafka((context, k) =>
+//        {
+//            k.Host("localhost:9092");
+
+//            k.TopicEndpoint<WeatherForecastEvent>("weatherforecast-requested", "consumer-group-name", e =>
+//            {
+//                e.ConfigureConsumer<KafkaMessageConsumer>(context);
+//            });
+//        });
+//    });
+//});
 
 var app = builder.Build();
 
@@ -29,7 +50,21 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/weatherforecast", async (IRepository repository) =>
+app.MapGet("/weatherforecast", async ([FromServices] IRepository repository, [FromServices] IPublishEndpoint bus) =>
+{
+    var clima = new WeatherForecast
+        (
+            DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Random.Shared.Next(-20, 55),
+            summaries[Random.Shared.Next(summaries.Length)]
+        );
+    await bus.Publish(clima);
+    return await repository.GetAsync();
+})
+.WithName("GetWeatherForecast")
+.WithOpenApi();
+
+app.MapPost("/weatherforecast", async ([FromServices] IRepository repository) =>
 {
     var clima = new WeatherForecast
         (
@@ -38,9 +73,8 @@ app.MapGet("/weatherforecast", async (IRepository repository) =>
             summaries[Random.Shared.Next(summaries.Length)]
         );
     await repository.CreateAsync(clima);
-    return await repository.GetAsync();
 })
-.WithName("GetWeatherForecast")
+.WithName("PostWeatherForecast")
 .WithOpenApi();
 
 app.Run();
