@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedDomain", "src\SharedD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3DFF77BD-99C6-45DD-839F-CB91D577746E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pagamento", "src\Pagamento\Pagamento.csproj", "{FADCDC63-E6EF-421E-8B42-E06E99E2BFD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pagamento", "src\Pagamento\Pagamento.csproj", "{FADCDC63-E6EF-421E-8B42-E06E99E2BFD2}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{C0E27725-D3C5-4E7D-BC14-7F620B32337C}"
 EndProject
@@ -15,6 +15,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens
 	ProjectSection(SolutionItems) = preProject
 		.env = .env
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D95F165F-9B46-4E01-BC26-4E285B5CB57E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Olorun.Integration", "tests\Olorun.Integration\Olorun.Integration.csproj", "{1AAEBEA1-1505-44C2-9C54-87659DC57203}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +38,10 @@ Global
 		{C0E27725-D3C5-4E7D-BC14-7F620B32337C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0E27725-D3C5-4E7D-BC14-7F620B32337C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0E27725-D3C5-4E7D-BC14-7F620B32337C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AAEBEA1-1505-44C2-9C54-87659DC57203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AAEBEA1-1505-44C2-9C54-87659DC57203}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AAEBEA1-1505-44C2-9C54-87659DC57203}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AAEBEA1-1505-44C2-9C54-87659DC57203}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,6 +49,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{824E2C3E-F964-4495-A993-ECD598FFD2C2} = {3DFF77BD-99C6-45DD-839F-CB91D577746E}
 		{FADCDC63-E6EF-421E-8B42-E06E99E2BFD2} = {3DFF77BD-99C6-45DD-839F-CB91D577746E}
+		{1AAEBEA1-1505-44C2-9C54-87659DC57203} = {D95F165F-9B46-4E01-BC26-4E285B5CB57E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AA1CD28D-98D1-4DD7-B253-65A552F928B5}
