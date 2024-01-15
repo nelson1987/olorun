@@ -103,6 +103,7 @@ public class Repository : IRepository
     public Repository(
         IOptions<BookStoreDatabaseSettings> bookStoreDatabaseSettings)
     {
+        /*
         MongoClientSettings settings = new MongoClientSettings();
         settings.Server = new MongoServerAddress("mongodb", 27017);
         settings.UseTls = true;
@@ -116,8 +117,9 @@ public class Repository : IRepository
         settings.Credential = new MongoCredential("SCRAM-SHA-256", identity, evidence);
 
         var mongoClient = new MongoClient(settings);
-        //var mongoClient = new MongoClient(
-        //    bookStoreDatabaseSettings.Value.ConnectionString);        
+        */
+        var mongoClient = new MongoClient(
+            bookStoreDatabaseSettings.Value.ConnectionString);        
 
         var mongoDatabase = mongoClient.GetDatabase(
             bookStoreDatabaseSettings.Value.DatabaseName);

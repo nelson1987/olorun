@@ -16,7 +16,7 @@ db = db.getSiblingDB('warehouse')
 
 db.createUser({
   user: 'warehouse',
-  pwd: '$WAREHOUSE_PASSWORD',
+  pwd: 'warehouse',
   roles: [{ role: 'readWrite', db: 'warehouse' }],
 });
 db.createCollection('documents')
