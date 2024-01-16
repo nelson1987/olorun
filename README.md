@@ -8,3 +8,13 @@ https://www.codeproject.com/Articles/5267948/Integration-Testing-More-Fixtures-t
 https://wrapt.dev/blog/integration-tests-in-dotnet-without-webappfactory
 https://timdeschryver.dev/blog/how-to-test-your-csharp-web-api#conclusion
 https://www.freecodecamp.org/news/learn-tdd-with-integration-tests-in-net-5-0/
+
+'''
+{
+	"Id": "8fbd0093-685b-4b99-9654-f30f54cd3daa",
+	"Date": "2024-01-16",
+	"TemperatureC": 15,
+	"Summary": "Cool",
+	"TemperatureF": 32
+}
+'''
