@@ -22,7 +22,7 @@ builder.Services.AddMassTransit(x =>
         rider.AddConsumer<KafkaMessageConsumer>();
         rider.UsingKafka((context, k) =>
         {
-            k.Host("localhost:9092");
+            k.Host("topics:29092");
             k.TopicEndpoint<WeatherForecastEvent>("weatherforecast-requested", "consumer-group-name", e =>
             {
                 e.ConfigureConsumer<KafkaMessageConsumer>(context);
@@ -47,7 +47,8 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/weatherforecast", async ([FromServices] IRepository repository, [FromServices] IPublishEndpoint bus) =>
+app.MapGet("/weatherforecast", async ([FromServices] IRepository repository
+    , [FromServices] IPublishEndpoint bus) =>
 {
     var clima = new WeatherForecast
         (
@@ -55,7 +56,13 @@ app.MapGet("/weatherforecast", async ([FromServices] IRepository repository, [Fr
             Random.Shared.Next(-20, 55),
             summaries[Random.Shared.Next(summaries.Length)]
         );
-    await bus.Publish(clima);
+    await bus.Publish<WeatherForecastEvent>(new ()
+    {
+        Date = clima.Date,
+        Id = clima.Id,
+        Summary = clima.Summary,
+        TemperatureC = clima.TemperatureC
+    });
     return await repository.GetAsync();
 })
 .WithName("GetWeatherForecast")

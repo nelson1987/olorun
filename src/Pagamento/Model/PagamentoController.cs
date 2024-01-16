@@ -154,18 +154,21 @@ public class BookStoreDatabaseSettings
 
     public string BooksCollectionName { get; set; } = null!;
 }
-class KafkaMessageConsumer :
+public class KafkaMessageConsumer :
         IConsumer<WeatherForecastEvent>
 {
     private readonly IRepository _repository;
+    private readonly ILogger<KafkaMessageConsumer> _log;
 
-    public KafkaMessageConsumer(IRepository repository)
+    public KafkaMessageConsumer(IRepository repository, ILogger<KafkaMessageConsumer> log)
     {
         _repository = repository;
+        _log = log;
     }
 
     public async Task Consume(ConsumeContext<WeatherForecastEvent> context)
     {
+        _log.LogInformation("Consume");
         WeatherForecastEvent mensagem = context.Message;
         WeatherForecast clima = new WeatherForecast(mensagem.Date, mensagem.TemperatureC, mensagem.Summary)
         {
