@@ -14,25 +14,22 @@ builder.Services.Configure<BookStoreDatabaseSettings>(
 builder.Services.AddSingleton<IRepository, Repository>();
 //Redis
 //Kafka
-//builder.Services.AddMassTransit(x =>
-//{
-//    x.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context));
-
-//    x.AddRider(rider =>
-//    {
-//        rider.AddConsumer<KafkaMessageConsumer>();
-
-//        rider.UsingKafka((context, k) =>
-//        {
-//            k.Host("localhost:9092");
-
-//            k.TopicEndpoint<WeatherForecastEvent>("weatherforecast-requested", "consumer-group-name", e =>
-//            {
-//                e.ConfigureConsumer<KafkaMessageConsumer>(context);
-//            });
-//        });
-//    });
-//});
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context));
+    x.AddRider(rider =>
+    {
+        rider.AddConsumer<KafkaMessageConsumer>();
+        rider.UsingKafka((context, k) =>
+        {
+            k.Host("localhost:9092");
+            k.TopicEndpoint<WeatherForecastEvent>("weatherforecast-requested", "consumer-group-name", e =>
+            {
+                e.ConfigureConsumer<KafkaMessageConsumer>(context);
+            });
+        });
+    });
+});
 
 var app = builder.Build();
 

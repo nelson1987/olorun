@@ -31,11 +31,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
-      #MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT:-mongodb}
-      #MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-mongodb}
-      #MONGO_INITDB_ROOT_DATABASE: ${MONGO_ROOT_DB:-mongodb}
       SALES_PASSWORD: ${SALES_PASSWORD:-sales}
-      #WAREHOUSE_PASSWORD: ${WAREHOUSE_PASSWORD:-warehouse}
+      WAREHOUSE_PASSWORD: ${WAREHOUSE_PASSWORD:-warehouse}
     ports:
       - "27017:27017"
     # networks:
@@ -62,28 +59,28 @@ services:
   #     - mongo
   #   networks:
   #     - services
-  # zookeeper:
-  #   image: confluentinc/cp-zookeeper:latest
-  #   environment:
-  #       ZOOKEEPER_CLIENT_PORT: 2181
-  #       ZOOKEEPER_TICK_TIME: 2000
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+        ZOOKEEPER_CLIENT_PORT: 2181
+        ZOOKEEPER_TICK_TIME: 2000
   #   networks:
   #     - services  
 
-  # kafka:
-  #   image: confluentinc/cp-kafka:latest
-  #   #container_name: topics
-  #   ports:
-  #       - 9092:9092
-  #   expose:
-  #       - '29092'
-  #   environment:
-  #       KAFKA_BROKER_ID: 1
-  #       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-  #       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-  #       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-  #       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    #container_name: topics
+    ports:
+      - 9092:9092
+    expose:
+      - '29092'
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
   #   healthcheck:
   #       test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
   #       interval: 30s
@@ -91,22 +88,20 @@ services:
   #       retries: 10
   #   networks:
   #     - services
-  #   depends_on:
-  #     - zookeeper
+    depends_on:
+      - zookeeper
 
-  # init-kafka:
-  #   image: confluentinc/cp-kafka:latest
-  #   entrypoint: [ '/bin/sh', '-c' ]
-  #   command: |
-  #       "
-  #       kafka-topics --bootstrap-server kafka:29092 --list
-
-  #       echo -e 'Creating kafka topics'
-  #       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic weatherforecast-requested --replication-factor 1 --partitions 1
-
-  #       echo -e 'Successfully created the following topics:'
-  #       kafka-topics --bootstrap-server kafka:29092 --list
-  #       "
+  init-kafka:
+    image: confluentinc/cp-kafka:latest
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+        "
+        kafka-topics --bootstrap-server kafka:29092 --list
+        echo -e 'Creating kafka topics'
+        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic weatherforecast-requested --replication-factor 1 --partitions 1
+        echo -e 'Successfully created the following topics:'
+        kafka-topics --bootstrap-server kafka:29092 --list
+        "
   #   networks:
   #     - services
  
