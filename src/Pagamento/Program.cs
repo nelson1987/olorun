@@ -13,6 +13,7 @@ builder.Services.Configure<BookStoreDatabaseSettings>(
     builder.Configuration.GetSection("BookStoreDatabase"));
 builder.Services.AddSingleton<IRepository, Repository>();
 //Redis
+
 //Kafka
 builder.Services.AddMassTransit(x =>
 {
@@ -51,25 +52,28 @@ var summaries = new[]
 app.MapGet("/weatherforecast", async ([FromServices] IRepository repository
     , [FromServices] ITopicProducer<WeatherForecastEvent> bus) =>
 {
-    var clima = new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        );
-    await bus.Produce(new ()
-    {
-        Date = clima.Date,
-        Id = clima.Id,
-        Summary = clima.Summary,
-        TemperatureC = clima.TemperatureC
-    });
     return await repository.GetAsync();
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.MapPost("/weatherforecast", async ([FromServices] IRepository repository) =>
+app.MapPut("/weatherforecast", async ([FromServices] IRepository repository
+    , [FromServices] ITopicProducer<WeatherForecastEvent> bus) =>
+{
+
+    var climaAsync = await repository.GetAsync();
+    var clima = climaAsync.First() with
+    {
+        Date =
+            DateOnly.FromDateTime(DateTime.Now.AddDays(1))
+    };
+    await repository.CreateAsync(clima);
+    return clima;
+})
+.WithName("PutWeatherForecast")
+.WithOpenApi();
+
+app.MapPost("/weatherforecast", async ([FromServices] IRepository repository, [FromServices] ITopicProducer<WeatherForecastEvent> bus) =>
 {
     var clima = new WeatherForecast
         (
@@ -77,7 +81,13 @@ app.MapPost("/weatherforecast", async ([FromServices] IRepository repository) =>
             Random.Shared.Next(-20, 55),
             summaries[Random.Shared.Next(summaries.Length)]
         );
-    await repository.CreateAsync(clima);
+    await bus.Produce(new()
+    {
+        Date = clima.Date,
+        Id = clima.Id,
+        Summary = clima.Summary,
+        TemperatureC = clima.TemperatureC
+    });
 })
 .WithName("PostWeatherForecast")
 .WithOpenApi();
