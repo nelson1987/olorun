@@ -13,6 +13,7 @@ builder.Services.Configure<BookStoreDatabaseSettings>(
     builder.Configuration.GetSection("BookStoreDatabase"));
 builder.Services.AddSingleton<IRepository, Repository>();
 //Redis
+
 //Kafka
 builder.Services.AddMassTransit(x =>
 {
@@ -57,7 +58,7 @@ app.MapGet("/weatherforecast", async ([FromServices] IRepository repository
             Random.Shared.Next(-20, 55),
             summaries[Random.Shared.Next(summaries.Length)]
         );
-    await bus.Produce(new ()
+    await bus.Produce(new()
     {
         Date = clima.Date,
         Id = clima.Id,
