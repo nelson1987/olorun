@@ -19,6 +19,7 @@ builder.Services.AddMassTransit(x =>
     x.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context));
     x.AddRider(rider =>
     {
+        rider.AddProducer<WeatherForecastEvent>("weatherforecast-requested");
         rider.AddConsumer<KafkaMessageConsumer>();
         rider.UsingKafka((context, k) =>
         {
@@ -48,7 +49,7 @@ var summaries = new[]
 };
 
 app.MapGet("/weatherforecast", async ([FromServices] IRepository repository
-    , [FromServices] IPublishEndpoint bus) =>
+    , [FromServices] ITopicProducer<WeatherForecastEvent> bus) =>
 {
     var clima = new WeatherForecast
         (
@@ -56,7 +57,7 @@ app.MapGet("/weatherforecast", async ([FromServices] IRepository repository
             Random.Shared.Next(-20, 55),
             summaries[Random.Shared.Next(summaries.Length)]
         );
-    await bus.Publish<WeatherForecastEvent>(new ()
+    await bus.Produce(new ()
     {
         Date = clima.Date,
         Id = clima.Id,
