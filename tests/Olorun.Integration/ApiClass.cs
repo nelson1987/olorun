@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace Olorun.Integration;
+﻿namespace Olorun.Integration;
 
 public enum ContaStatus { Cadastrado = 0, Aberto = 1, Fechado = 2, Bloqueado = 3 }
 
