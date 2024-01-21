@@ -49,23 +49,21 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/weatherforecast", async ([FromServices] IRepository repository
-    , [FromServices] ITopicProducer<WeatherForecastEvent> bus) =>
+app.MapGet("/weatherforecast", async ([FromServices] IRepository repository) =>
 {
     return await repository.GetAsync();
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.MapPut("/weatherforecast", async ([FromServices] IRepository repository
-    , [FromServices] ITopicProducer<WeatherForecastEvent> bus) =>
+app.MapPut("/weatherforecast", async ([FromServices] IRepository repository) =>
 {
 
     var climaAsync = await repository.GetAsync();
     var clima = climaAsync.First() with
     {
         Date =
-            DateOnly.FromDateTime(DateTime.Now.AddDays(1))
+            DateOnly.FromDateTime(DateTime.Now.AddDays(2))
     };
     await repository.CreateAsync(clima);
     return clima;
