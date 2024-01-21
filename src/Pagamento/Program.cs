@@ -111,7 +111,7 @@ public class WeatherForecastHandler : IWeatherForecastHandler
             Date =
                 DateOnly.FromDateTime(DateTime.Now.AddDays(2))
         };
-        await _repository.CreateAsync(clima);
+        await _repository.UpdateAsync(climaAsync.First().Id, clima);
         return clima;
     }
 }
