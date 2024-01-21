@@ -94,6 +94,7 @@ public interface IRepository
     Task<WeatherForecast?> GetAsync(Guid id, CancellationToken cancellationToken = default);
     Task CreateAsync(WeatherForecast newBook, CancellationToken cancellationToken = default);
     Task UpdateAsync(Guid id, WeatherForecast updatedBook);
+    Task RemoveAsync(Guid id, CancellationToken cancellationToken = default);
 }
 
 public class Repository : IRepository
@@ -139,13 +140,13 @@ public class BookStoreDatabaseSettings
 
     public string BooksCollectionName { get; set; } = null!;
 }
-public class KafkaMessageConsumer :
+public class CreateWeatherForecastConsumer :
         IConsumer<CreateWeatherForecastEvent>
 {
     private readonly IRepository _repository;
-    private readonly ILogger<KafkaMessageConsumer> _log;
+    private readonly ILogger<CreateWeatherForecastConsumer> _log;
 
-    public KafkaMessageConsumer(IRepository repository, ILogger<KafkaMessageConsumer> log)
+    public CreateWeatherForecastConsumer(IRepository repository, ILogger<CreateWeatherForecastConsumer> log)
     {
         _repository = repository;
         _log = log;
@@ -160,6 +161,25 @@ public class KafkaMessageConsumer :
             Id = mensagem.Id
         };
         await _repository.CreateAsync(clima);
+    }
+}
+public class DeleteteWeatherForecastConsumer :
+        IConsumer<DeleteWeatherForecastEvent>
+{
+    private readonly IRepository _repository;
+    private readonly ILogger<DeleteteWeatherForecastConsumer> _log;
+
+    public DeleteteWeatherForecastConsumer(IRepository repository, ILogger<DeleteteWeatherForecastConsumer> log)
+    {
+        _repository = repository;
+        _log = log;
+    }
+
+    public async Task Consume(ConsumeContext<DeleteWeatherForecastEvent> context)
+    {
+        _log.LogInformation("Delete");
+        DeleteWeatherForecastEvent mensagem = context.Message;
+        await _repository.RemoveAsync(mensagem.Id);
     }
 }
 

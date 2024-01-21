@@ -19,13 +19,13 @@ builder.Services.AddMassTransit(x =>
     x.AddRider(rider =>
     {
         rider.AddProducer<CreateWeatherForecastEvent>("weatherforecast-requested");
-        rider.AddConsumer<KafkaMessageConsumer>();
+        rider.AddConsumer<CreateWeatherForecastConsumer>();
         rider.UsingKafka((context, k) =>
         {
             k.Host("kafka:9092");
             k.TopicEndpoint<CreateWeatherForecastEvent>("weatherforecast-requested", "consumer-group-name", e =>
             {
-                e.ConfigureConsumer<KafkaMessageConsumer>(context);
+                e.ConfigureConsumer<CreateWeatherForecastConsumer>(context);
             });
         });
     });
