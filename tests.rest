@@ -1,0 +1,3 @@
+curl -X 'GET' \
+  'https://musical-space-zebra-6qgxjx9r4jc4prj-8000.app.github.dev/weatherforecast' \
+  -H 'accept: application/json'
