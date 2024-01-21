@@ -1,3 +1,4 @@
+using FluentResults;
 using MassTransit;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization.Attributes;
@@ -72,13 +73,13 @@ public static class Mapper
     }
 }
 
-public record Result
-{
-    internal static Result Ok()
-    {
-        throw new NotImplementedException();
-    }
-}
+//public record Result
+//{
+//    internal static Result Ok()
+//    {
+//        throw new NotImplementedException();
+//    }
+//}
 
 public record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {

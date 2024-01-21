@@ -11,7 +11,8 @@ builder.Services.AddSwaggerGen();
 //Mongo
 builder.Services.Configure<BookStoreDatabaseSettings>(
     builder.Configuration.GetSection("BookStoreDatabase"));
-builder.Services.AddSingleton<IRepository, Repository>();
+builder.Services.AddScoped<IRepository, Repository>();
+builder.Services.AddScoped<IWeatherForecastHandler, WeatherForecastHandler>();
 //Redis
 
 //Kafka
@@ -44,52 +45,76 @@ if (app.Environment.IsDevelopment())
 
 //app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", async ([FromServices] IRepository repository
-    , [FromServices] ITopicProducer<WeatherForecastEvent> bus) =>
+app.MapGet("/weatherforecast", async ([FromServices] IWeatherForecastHandler repository) =>
 {
     return await repository.GetAsync();
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.MapPut("/weatherforecast", async ([FromServices] IRepository repository
-    , [FromServices] ITopicProducer<WeatherForecastEvent> bus) =>
+app.MapPut("/weatherforecast", async ([FromServices] IWeatherForecastHandler repository) =>
 {
-
-    var climaAsync = await repository.GetAsync();
-    var clima = climaAsync.First() with
-    {
-        Date =
-            DateOnly.FromDateTime(DateTime.Now.AddDays(1))
-    };
-    await repository.CreateAsync(clima);
-    return clima;
+    return await repository.PutAsync();
 })
 .WithName("PutWeatherForecast")
 .WithOpenApi();
 
-app.MapPost("/weatherforecast", async ([FromServices] IRepository repository, [FromServices] ITopicProducer<WeatherForecastEvent> bus) =>
+app.MapPost("/weatherforecast", async ([FromServices] IWeatherForecastHandler repository) =>
 {
-    var clima = new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        );
-    await bus.Produce(new()
-    {
-        Date = clima.Date,
-        Id = clima.Id,
-        Summary = clima.Summary,
-        TemperatureC = clima.TemperatureC
-    });
+    await repository.PostAsync();
 })
 .WithName("PostWeatherForecast")
 .WithOpenApi();
 
 app.Run();
+
+public interface IWeatherForecastHandler
+{
+    Task<IList<WeatherForecast>> GetAsync();
+    Task<WeatherForecast> PutAsync();
+    Task PostAsync();
+}
+public class WeatherForecastHandler : IWeatherForecastHandler
+{
+    private string[] summaries = new[]
+    {
+    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+};
+    private readonly IRepository _repository;
+    private readonly ITopicProducer<WeatherForecastEvent> _bus;
+
+    public WeatherForecastHandler(IRepository repository, ITopicProducer<WeatherForecastEvent> bus)
+    {
+        _repository = repository;
+        _bus = bus;
+    }
+
+    public async Task<IList<WeatherForecast>> GetAsync()
+    {
+        return await _repository.GetAsync();
+    }
+
+    public async Task PostAsync()
+    {
+        WeatherForecastEvent @event = new WeatherForecastEvent()
+        {
+            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Id = Guid.NewGuid(),
+            Summary = summaries[Random.Shared.Next(summaries.Length)],
+            TemperatureC = Random.Shared.Next(-20, 55)
+        };
+        await _bus.Produce(@event);
+    }
+
+    public async Task<WeatherForecast> PutAsync()
+    {
+        var climaAsync = await _repository.GetAsync();
+        var clima = climaAsync.First() with
+        {
+            Date =
+                DateOnly.FromDateTime(DateTime.Now.AddDays(2))
+        };
+        await _repository.CreateAsync(clima);
+        return clima;
+    }
+}
