@@ -91,12 +91,16 @@ public class WeatherForecastHandler : IWeatherForecastHandler
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
     private readonly IRepository _repository;
-    private readonly ITopicProducer<CreateWeatherForecastEvent> _bus;
+    private readonly ITopicProducer<CreateWeatherForecastEvent> _createProducer;
+    private readonly ITopicProducer<DeleteWeatherForecastEvent> _deleteProducer;
 
-    public WeatherForecastHandler(IRepository repository, ITopicProducer<CreateWeatherForecastEvent> bus)
+    public WeatherForecastHandler(IRepository repository,
+        ITopicProducer<CreateWeatherForecastEvent> createProducer,
+        ITopicProducer<DeleteWeatherForecastEvent> deleteProducer)
     {
         _repository = repository;
-        _bus = bus;
+        _createProducer = createProducer;
+        _deleteProducer = deleteProducer;
     }
 
     public async Task<IList<WeatherForecast>> GetAsync()
@@ -113,7 +117,7 @@ public class WeatherForecastHandler : IWeatherForecastHandler
             Summary = summaries[Random.Shared.Next(summaries.Length)],
             TemperatureC = Random.Shared.Next(-20, 55)
         };
-        await _bus.Produce(@event);
+        await _createProducer.Produce(@event);
     }
 
     public async Task<WeatherForecast> PutAsync()
@@ -135,7 +139,7 @@ public class WeatherForecastHandler : IWeatherForecastHandler
         {
             Id = climaAsync.First().Id
         };
-        await _bus.Produce(@event);
+        await _deleteProducer.Produce(@event);
     }
 
 }
