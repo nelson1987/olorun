@@ -1,5 +1,4 @@
 using FluentResults;
-using MassTransit;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -141,7 +140,7 @@ public class BookStoreDatabaseSettings
     public string BooksCollectionName { get; set; } = null!;
 }
 public class KafkaMessageConsumer :
-        IConsumer<WeatherForecastEvent>
+        IConsumer<CreateWeatherForecastEvent>
 {
     private readonly IRepository _repository;
     private readonly ILogger<KafkaMessageConsumer> _log;
@@ -152,10 +151,10 @@ public class KafkaMessageConsumer :
         _log = log;
     }
 
-    public async Task Consume(ConsumeContext<WeatherForecastEvent> context)
+    public async Task Consume(ConsumeContext<CreateWeatherForecastEvent> context)
     {
         _log.LogInformation("Consume");
-        WeatherForecastEvent mensagem = context.Message;
+        CreateWeatherForecastEvent mensagem = context.Message;
         WeatherForecast clima = new WeatherForecast(mensagem.Date, mensagem.TemperatureC, mensagem.Summary)
         {
             Id = mensagem.Id
@@ -164,11 +163,15 @@ public class KafkaMessageConsumer :
     }
 }
 
-public record WeatherForecastEvent
+public record CreateWeatherForecastEvent
 {
     public Guid Id { get; init; }
     public DateOnly Date { get; init; }
     public int TemperatureC { get; init; }
     public string? Summary { get; init; }
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}
+public record DeleteWeatherForecastEvent
+{
+    public Guid Id { get; init; }
 }

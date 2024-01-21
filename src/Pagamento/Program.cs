@@ -18,12 +18,12 @@ builder.Services.AddMassTransit(x =>
     x.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context));
     x.AddRider(rider =>
     {
-        rider.AddProducer<WeatherForecastEvent>("weatherforecast-requested");
+        rider.AddProducer<CreateWeatherForecastEvent>("weatherforecast-requested");
         rider.AddConsumer<KafkaMessageConsumer>();
         rider.UsingKafka((context, k) =>
         {
             k.Host("kafka:9092");
-            k.TopicEndpoint<WeatherForecastEvent>("weatherforecast-requested", "consumer-group-name", e =>
+            k.TopicEndpoint<CreateWeatherForecastEvent>("weatherforecast-requested", "consumer-group-name", e =>
             {
                 e.ConfigureConsumer<KafkaMessageConsumer>(context);
             });
@@ -62,6 +62,12 @@ app.MapPost("/weatherforecast", async ([FromServices] IWeatherForecastHandler re
 })
 .WithName("PostWeatherForecast")
 .WithOpenApi();
+app.MapPost("/weatherforecast", async ([FromServices] IWeatherForecastHandler repository) =>
+{
+    await repository.DeleteAsync();
+})
+.WithName("DeleteWeatherForecast")
+.WithOpenApi();
 
 app.Run();
 
@@ -70,6 +76,7 @@ public interface IWeatherForecastHandler
     Task<IList<WeatherForecast>> GetAsync();
     Task<WeatherForecast> PutAsync();
     Task PostAsync();
+    Task DeleteAsync();
 }
 public class WeatherForecastHandler : IWeatherForecastHandler
 {
@@ -78,9 +85,9 @@ public class WeatherForecastHandler : IWeatherForecastHandler
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
     private readonly IRepository _repository;
-    private readonly ITopicProducer<WeatherForecastEvent> _bus;
+    private readonly ITopicProducer<CreateWeatherForecastEvent> _bus;
 
-    public WeatherForecastHandler(IRepository repository, ITopicProducer<WeatherForecastEvent> bus)
+    public WeatherForecastHandler(IRepository repository, ITopicProducer<CreateWeatherForecastEvent> bus)
     {
         _repository = repository;
         _bus = bus;
@@ -93,7 +100,7 @@ public class WeatherForecastHandler : IWeatherForecastHandler
 
     public async Task PostAsync()
     {
-        WeatherForecastEvent @event = new WeatherForecastEvent()
+        CreateWeatherForecastEvent @event = new CreateWeatherForecastEvent()
         {
             Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
             Id = Guid.NewGuid(),
@@ -114,4 +121,15 @@ public class WeatherForecastHandler : IWeatherForecastHandler
         await _repository.UpdateAsync(climaAsync.First().Id, clima);
         return clima;
     }
+
+    public async Task DeleteAsync()
+    {
+        var climaAsync = await _repository.GetAsync();
+        DeleteWeatherForecastEvent @event = new DeleteWeatherForecastEvent()
+        {
+            Id = climaAsync.First().Id
+        };
+        await _bus.Produce(@event);
+    }
+
 }
