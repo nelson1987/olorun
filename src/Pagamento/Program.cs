@@ -62,7 +62,7 @@ app.MapPost("/weatherforecast", async ([FromServices] IWeatherForecastHandler re
 })
 .WithName("PostWeatherForecast")
 .WithOpenApi();
-app.MapPost("/weatherforecast", async ([FromServices] IWeatherForecastHandler repository) =>
+app.MapDelete("/weatherforecast", async ([FromServices] IWeatherForecastHandler repository) =>
 {
     await repository.DeleteAsync();
 })
