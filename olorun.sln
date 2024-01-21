@@ -14,11 +14,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens de Solução", "{670BE0F9-9F3C-4CBF-A62C-F499EFB8B9D8}"
 	ProjectSection(SolutionItems) = preProject
 		.env = .env
+		tests.rest = tests.rest
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D95F165F-9B46-4E01-BC26-4E285B5CB57E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Olorun.Integration", "tests\Olorun.Integration\Olorun.Integration.csproj", "{1AAEBEA1-1505-44C2-9C54-87659DC57203}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Olorun.Integration", "tests\Olorun.Integration\Olorun.Integration.csproj", "{1AAEBEA1-1505-44C2-9C54-87659DC57203}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

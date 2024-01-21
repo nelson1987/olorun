@@ -1,3 +1,17 @@
-curl -X 'GET' \
-  'https://musical-space-zebra-6qgxjx9r4jc4prj-8000.app.github.dev/weatherforecast' \
-  -H 'accept: application/json'
+GET https://musical-space-zebra-6qgxjx9r4jc4prj-8000.app.github.dev/weatherforecast
+accept: application/json
+###
+POST https://musical-space-zebra-6qgxjx9r4jc4prj-8000.app.github.dev/weatherforecast
+accept: application/json
+###
+GET https://musical-space-zebra-6qgxjx9r4jc4prj-8000.app.github.dev/weatherforecast
+accept: application/json
+###
+PUT https://musical-space-zebra-6qgxjx9r4jc4prj-8000.app.github.dev/weatherforecast
+accept: application/json
+###
+GET https://musical-space-zebra-6qgxjx9r4jc4prj-8000.app.github.dev/weatherforecast
+accept: application/json
+###
+DELETE https://musical-space-zebra-6qgxjx9r4jc4prj-8000.app.github.dev/weatherforecast
+accept: application/json
