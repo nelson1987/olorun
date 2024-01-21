@@ -1,6 +1,3 @@
-using MassTransit;
-using Microsoft.AspNetCore.Mvc;
-using Pagamento.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
