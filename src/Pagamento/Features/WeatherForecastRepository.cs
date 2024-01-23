@@ -1,10 +1,19 @@
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using Pagamento.Features.Entities;
+
+namespace Pagamento.Features;
 
 public interface IWeatherForecastRepository
 {
     Task<List<WeatherForecast>> GetAsync(CancellationToken cancellationToken = default);
+
     Task<WeatherForecast?> GetAsync(Guid id, CancellationToken cancellationToken = default);
+
     Task CreateAsync(WeatherForecast newBook, CancellationToken cancellationToken = default);
-    Task UpdateAsync(Guid id, WeatherForecast updatedBook);
+
+    Task UpdateAsync(Guid id, WeatherForecast updatedBook, CancellationToken cancellationToken = default);
+
     Task RemoveAsync(Guid id, CancellationToken cancellationToken = default);
 }
 
@@ -34,10 +43,9 @@ public class WeatherForecastRepository : IWeatherForecastRepository
     public async Task CreateAsync(WeatherForecast newBook, CancellationToken cancellationToken = default) =>
         await _booksCollection.InsertOneAsync(newBook, cancellationToken);
 
-    public async Task UpdateAsync(Guid id, WeatherForecast updatedBook) =>
+    public async Task UpdateAsync(Guid id, WeatherForecast updatedBook, CancellationToken cancellationToken = default) =>
         await _booksCollection.ReplaceOneAsync(x => x.Id == id, updatedBook);
 
     public async Task RemoveAsync(Guid id, CancellationToken cancellationToken = default) =>
         await _booksCollection.DeleteOneAsync(x => x.Id == id, cancellationToken);
-
 }

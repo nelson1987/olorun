@@ -1,15 +1,20 @@
+using Pagamento.Features;
+using Pagamento.Features.Create;
+using Pagamento.Features.Delete;
+
+namespace Pagamento.Services;
 public static class Service
 {
     public static IServiceCollection AddDependencies(this IServiceCollection services)
     {
-        services.AddScoped<IRepository, Repository>()
+        services.AddScoped<IWeatherForecastRepository, WeatherForecastRepository>()
                 .AddScoped<IWeatherForecastHandler, WeatherForecastHandler>();
         return services;
     }
 
-    public static IServiceCollection AddMongoDb(this IServiceCollection services)
+    public static IServiceCollection AddMongoDb(this IServiceCollection services, ConfigurationManager configuration)
     {
-        services.Configure<BookStoreDatabaseSettings>(builder.Configuration.GetSection("BookStoreDatabase"));
+        services.Configure<BookStoreDatabaseSettings>(configuration.GetSection("BookStoreDatabase"));
         return services;
     }
 

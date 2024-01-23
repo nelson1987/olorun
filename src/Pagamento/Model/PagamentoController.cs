@@ -2,6 +2,7 @@ using FluentResults;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using Pagamento.Features;
 
 namespace Pagamento.Model;
 public interface IProducer<T> where T : class

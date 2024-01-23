@@ -1,3 +1,6 @@
+using Pagamento.Features;
+using Pagamento.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,7 +9,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 //Mongo
 builder.Services.AddDependencies()
-                .AddMongoDb()
+                .AddMongoDb(builder.Configuration)
                 //Redis
                 .AddKafka();
 
@@ -18,30 +21,30 @@ if (app.Environment.IsDevelopment())
 }
 //app.UseHttpsRedirection();
 
-app.MapGet("/weatherforecast", async ([FromServices] IWeatherForecastHandler handler) =>
+app.MapGet("/weatherforecast", async ([FromServices] IWeatherForecastHandler handler, CancellationToken cancellationToken) =>
 {
-    return await handler.GetAsync();
+    return await handler.GetAsync(cancellationToken);
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.MapPut("/weatherforecast", async ([FromServices] IWeatherForecastHandler handler) =>
+app.MapPut("/weatherforecast", async ([FromServices] IWeatherForecastHandler handler, Guid idClima, CancellationToken cancellationToken) =>
 {
-    return await handler.PutAsync();
+    return await handler.PutAsync(idClima, cancellationToken);
 })
 .WithName("PutWeatherForecast")
 .WithOpenApi();
 
-app.MapPost("/weatherforecast", async ([FromServices] IWeatherForecastHandler handler) =>
+app.MapPost("/weatherforecast", async ([FromServices] IWeatherForecastHandler handler, CancellationToken cancellationToken) =>
 {
-    await handler.PostAsync();
+    await handler.PostAsync(cancellationToken);
 })
 .WithName("PostWeatherForecast")
 .WithOpenApi();
 
-app.MapDelete("/weatherforecast", async ([FromServices] IWeatherForecastHandler handler) =>
+app.MapDelete("/weatherforecast", async ([FromServices] IWeatherForecastHandler handler, Guid idClima, CancellationToken cancellationToken) =>
 {
-    await handler.DeleteAsync();
+    await handler.DeleteAsync(idClima, cancellationToken);
 })
 .WithName("DeleteWeatherForecast")
 .WithOpenApi();

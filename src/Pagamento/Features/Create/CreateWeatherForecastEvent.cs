@@ -1,4 +1,4 @@
-
+namespace Pagamento.Features.Create;
 public record CreateWeatherForecastEvent
 {
     public Guid Id { get; init; }

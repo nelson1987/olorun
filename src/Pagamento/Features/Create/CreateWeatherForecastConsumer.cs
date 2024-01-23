@@ -1,3 +1,6 @@
+using Pagamento.Features.Entities;
+
+namespace Pagamento.Features.Create;
 public class CreateWeatherForecastConsumer :
         IConsumer<CreateWeatherForecastEvent>
 {

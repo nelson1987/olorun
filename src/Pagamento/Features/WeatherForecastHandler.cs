@@ -1,10 +1,17 @@
+using Pagamento.Features.Create;
+using Pagamento.Features.Delete;
+using Pagamento.Features.Entities;
 
+namespace Pagamento.Features;
 public interface IWeatherForecastHandler
 {
-    Task<IList<WeatherForecast>> GetAsync();
-    Task<WeatherForecast> PutAsync();
-    Task PostAsync();
-    Task DeleteAsync();
+    Task<IList<WeatherForecast>> GetAsync(CancellationToken cancellationToken);
+
+    Task<WeatherForecast> PutAsync(Guid id, CancellationToken cancellationToken);
+
+    Task PostAsync(CancellationToken cancellationToken);
+
+    Task DeleteAsync(Guid idClima, CancellationToken cancellationToken);
 }
 
 public class WeatherForecastHandler : IWeatherForecastHandler
@@ -13,6 +20,7 @@ public class WeatherForecastHandler : IWeatherForecastHandler
     {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
+
     private readonly IWeatherForecastRepository _repository;
     private readonly ITopicProducer<CreateWeatherForecastEvent> _createProducer;
     private readonly ITopicProducer<DeleteWeatherForecastEvent> _deleteProducer;
@@ -26,12 +34,12 @@ public class WeatherForecastHandler : IWeatherForecastHandler
         _deleteProducer = deleteProducer;
     }
 
-    public async Task<IList<WeatherForecast>> GetAsync()
+    public async Task<IList<WeatherForecast>> GetAsync(CancellationToken cancellationToken)
     {
         return await _repository.GetAsync();
     }
 
-    public async Task PostAsync()
+    public async Task PostAsync(CancellationToken cancellationToken)
     {
         await _createProducer.Produce(new CreateWeatherForecastEvent()
         {
@@ -42,25 +50,24 @@ public class WeatherForecastHandler : IWeatherForecastHandler
         });
     }
 
-    public async Task<WeatherForecast> PutAsync()
+    public async Task<WeatherForecast> PutAsync(Guid idClima, CancellationToken cancellationToken)
     {
-        var climaAsync = await _repository.GetAsync();
-        var clima = climaAsync.First() with
+        var climaAsync = await _repository.GetAsync(idClima, cancellationToken);
+        var clima = climaAsync! with
         {
             Date =
                 DateOnly.FromDateTime(DateTime.Now.AddDays(2))
         };
-        await _repository.UpdateAsync(climaAsync.First().Id, clima);
+        await _repository.UpdateAsync(climaAsync.Id, clima);
         return clima;
     }
 
-    public async Task DeleteAsync(Guid idClima)
+    public async Task DeleteAsync(Guid idClima, CancellationToken cancellationToken)
     {
         var climaAsync = await _repository.GetAsync(idClima, cancellationToken);
         await _deleteProducer.Produce(new DeleteWeatherForecastEvent()
         {
-            Id = climaAsync.Id
+            Id = climaAsync!.Id
         });
     }
-
 }

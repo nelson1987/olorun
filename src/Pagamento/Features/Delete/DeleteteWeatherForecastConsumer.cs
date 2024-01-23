@@ -1,3 +1,4 @@
+namespace Pagamento.Features.Delete;
 public class DeleteteWeatherForecastConsumer :
         IConsumer<DeleteWeatherForecastEvent>
 {
