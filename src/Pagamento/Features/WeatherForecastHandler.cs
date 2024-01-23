@@ -13,11 +13,11 @@ public class WeatherForecastHandler : IWeatherForecastHandler
     {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
-    private readonly IRepository _repository;
+    private readonly IWeatherForecastRepository _repository;
     private readonly ITopicProducer<CreateWeatherForecastEvent> _createProducer;
     private readonly ITopicProducer<DeleteWeatherForecastEvent> _deleteProducer;
 
-    public WeatherForecastHandler(IRepository repository,
+    public WeatherForecastHandler(IWeatherForecastRepository repository,
         ITopicProducer<CreateWeatherForecastEvent> createProducer,
         ITopicProducer<DeleteWeatherForecastEvent> deleteProducer)
     {
@@ -54,14 +54,13 @@ public class WeatherForecastHandler : IWeatherForecastHandler
         return clima;
     }
 
-    public async Task DeleteAsync()
+    public async Task DeleteAsync(Guid idClima)
     {
-        var climaAsync = await _repository.GetAsync();
-        DeleteWeatherForecastEvent @event = new DeleteWeatherForecastEvent()
+        var climaAsync = await _repository.GetAsync(idClima, cancellationToken);
+        await _deleteProducer.Produce(new DeleteWeatherForecastEvent()
         {
-            Id = climaAsync.First().Id
-        };
-        await _deleteProducer.Produce(@event);
+            Id = climaAsync.Id
+        });
     }
 
 }

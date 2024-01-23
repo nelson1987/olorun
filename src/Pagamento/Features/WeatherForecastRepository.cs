@@ -1,5 +1,5 @@
 
-public interface IRepository
+public interface IWeatherForecastRepository
 {
     Task<List<WeatherForecast>> GetAsync(CancellationToken cancellationToken = default);
     Task<WeatherForecast?> GetAsync(Guid id, CancellationToken cancellationToken = default);
@@ -8,11 +8,11 @@ public interface IRepository
     Task RemoveAsync(Guid id, CancellationToken cancellationToken = default);
 }
 
-public class Repository : IRepository
+public class WeatherForecastRepository : IWeatherForecastRepository
 {
     private readonly IMongoCollection<WeatherForecast> _booksCollection;
 
-    public Repository(
+    public WeatherForecastRepository(
         IOptions<BookStoreDatabaseSettings> bookStoreDatabaseSettings)
     {
         var mongoClient = new MongoClient(
@@ -31,7 +31,6 @@ public class Repository : IRepository
     public async Task<WeatherForecast?> GetAsync(Guid id, CancellationToken cancellationToken = default) =>
         await _booksCollection.Find(x => x.Id == id).FirstOrDefaultAsync(cancellationToken);
 
-    [Obsolete]
     public async Task CreateAsync(WeatherForecast newBook, CancellationToken cancellationToken = default) =>
         await _booksCollection.InsertOneAsync(newBook, cancellationToken);
 

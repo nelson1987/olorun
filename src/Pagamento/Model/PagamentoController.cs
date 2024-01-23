@@ -28,10 +28,10 @@ public class PagamentoSubmetidoEvent
 
 public class InclusaoPagamentoHandler
 {
-    private readonly IRepository _repository;
+    private readonly IWeatherForecastRepository _repository;
     private readonly IProducer<PagamentoIncluidoEvent> _producer;
 
-    public InclusaoPagamentoHandler(IRepository repository, IProducer<PagamentoIncluidoEvent> producer)
+    public InclusaoPagamentoHandler(IWeatherForecastRepository repository, IProducer<PagamentoIncluidoEvent> producer)
     {
         _repository = repository;
         _producer = producer;
@@ -47,10 +47,10 @@ public class InclusaoPagamentoHandler
 
 public class PagamentoIncluidoEventHandler
 {
-    private readonly IRepository? _repository;
+    private readonly IWeatherForecastRepository? _repository;
     private readonly IProducer<PagamentoSubmetidoEvent> _producer;
 
-    public PagamentoIncluidoEventHandler(IRepository? repository, IProducer<PagamentoSubmetidoEvent> producer)
+    public PagamentoIncluidoEventHandler(IWeatherForecastRepository? repository, IProducer<PagamentoSubmetidoEvent> producer)
     {
         _repository = repository;
         _producer = producer;

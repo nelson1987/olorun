@@ -1,10 +1,10 @@
 public class DeleteteWeatherForecastConsumer :
         IConsumer<DeleteWeatherForecastEvent>
 {
-    private readonly IRepository _repository;
+    private readonly IWeatherForecastRepository _repository;
     private readonly ILogger<DeleteteWeatherForecastConsumer> _log;
 
-    public DeleteteWeatherForecastConsumer(IRepository repository, ILogger<DeleteteWeatherForecastConsumer> log)
+    public DeleteteWeatherForecastConsumer(IWeatherForecastRepository repository, ILogger<DeleteteWeatherForecastConsumer> log)
     {
         _repository = repository;
         _log = log;

@@ -1,10 +1,10 @@
 public class CreateWeatherForecastConsumer :
         IConsumer<CreateWeatherForecastEvent>
 {
-    private readonly IRepository _repository;
+    private readonly IWeatherForecastRepository _repository;
     private readonly ILogger<CreateWeatherForecastConsumer> _log;
 
-    public CreateWeatherForecastConsumer(IRepository repository, ILogger<CreateWeatherForecastConsumer> log)
+    public CreateWeatherForecastConsumer(IWeatherForecastRepository repository, ILogger<CreateWeatherForecastConsumer> log)
     {
         _repository = repository;
         _log = log;
