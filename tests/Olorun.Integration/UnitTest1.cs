@@ -77,6 +77,20 @@ public class OlorunApiFixture
             new AuthenticationHeaderValue(scheme: "TestScheme");
     }
 }
+
+public class ConsumerTests 
+{
+    private readonly CadastroContaCommand _command;
+    
+    [Fact]
+    public async Task Given_a_valid_bank_credit_note_settlement_should_output_expected_results()
+    {        
+        await KafkaFixture.Produce(EventsTopics.SettlementOrdersCreated.Name, _settlementOrderEvent);
+        await ApiFixture.Server.Consume<SettlementConsumer>(TimeSpan.FromMinutes(1));
+        
+    }
+}
+
 public class IntegrationTests1 : IClassFixture<OlorunApiFixture>
 {
     private readonly OlorunApiFixture _olorunApiFixture;
