@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 
-namespace Inflames.tests
+namespace Olorun.Integration
 {
     public class Api : WebApplicationFactory<Program>
     {

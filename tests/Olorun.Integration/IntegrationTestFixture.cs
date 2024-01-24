@@ -1,6 +1,6 @@
-﻿using Inflames.tests.Configs.Fixtures;
+﻿using Olorun.Integration.Configs.Fixtures;
 
-namespace Inflames.tests
+namespace Olorun.Integration
 {
     public class IntegrationTestFixture : IAsyncLifetime
     {

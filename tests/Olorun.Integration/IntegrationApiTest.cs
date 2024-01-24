@@ -1,7 +1,7 @@
 using FluentAssertions;
-using Inflames.Api;
+using Pagamento.Features.Entities;
 
-namespace Inflames.tests
+namespace Olorun.Integration
 {
     public class IntegrationApiTest : IntegrationTest
     {
@@ -13,12 +13,10 @@ namespace Inflames.tests
         public async Task Get()
         {
             // Arrange
-            var creditNote = new WeatherForecast
-            {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = "frio"
-            };
+            var creditNote = new WeatherForecast(DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                 Random.Shared.Next(-20, 55),
+                 "frio"
+            );
 
             await MongoFixture.MongoDatabase
                 .GetCollection<WeatherForecast>(nameof(WeatherForecast))

@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 
-namespace Inflames.tests.Configs.Fixtures
+namespace Olorun.Integration.Configs.Fixtures
 {
     public sealed class ApiFixture : IAsyncDisposable
     {

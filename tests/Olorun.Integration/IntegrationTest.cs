@@ -1,8 +1,8 @@
 ﻿using AutoFixture;
-using Inflames.tests.Configs.Fixtures;
+using Olorun.Integration.Configs.Fixtures;
 using Xunit.Categories;
 
-namespace Inflames.tests
+namespace Olorun.Integration
 {
     [Collection(nameof(IntegrationCollection))]
     [IntegrationTest]
