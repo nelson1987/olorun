@@ -30,4 +30,8 @@
 		</PackageReference>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\Pagamento\Pagamento.csproj" />
+	</ItemGroup>
+
 </Project>
