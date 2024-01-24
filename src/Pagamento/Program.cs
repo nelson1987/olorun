@@ -50,3 +50,4 @@ app.MapDelete("/weatherforecast", async ([FromServices] IWeatherForecastHandler 
 .WithOpenApi();
 
 app.Run();
+public partial class Program { }
