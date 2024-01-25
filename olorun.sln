@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens de Solução", "{670BE0F9-9F3C-4CBF-A62C-F499EFB8B9D8}"
 	ProjectSection(SolutionItems) = preProject
 		.env = .env
+		src\Pagamento\Pagamento.http = src\Pagamento\Pagamento.http
 		tests.rest = tests.rest
 	EndProjectSection
 EndProject
