@@ -1,6 +1,4 @@
-﻿using Olorun.Integration.Configs.Fixtures;
-
-namespace Olorun.Integration
+﻿namespace Olorun.Integration.Configs.Fixtures
 {
     public class IntegrationTestFixture : IAsyncLifetime
     {

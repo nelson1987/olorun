@@ -2,7 +2,7 @@
 using Olorun.Integration.Configs.Fixtures;
 using Xunit.Categories;
 
-namespace Olorun.Integration
+namespace Olorun.Integration.Configs
 {
     [Collection(nameof(IntegrationCollection))]
     [IntegrationTest]

@@ -1,7 +1,9 @@
 using FluentAssertions;
+using Olorun.Integration.Configs;
+using Olorun.Integration.Configs.Fixtures;
 using Pagamento.Features.Entities;
 
-namespace Olorun.Integration
+namespace Olorun.Integration.Integrations
 {
     public class IntegrationApiTest : IntegrationTest
     {

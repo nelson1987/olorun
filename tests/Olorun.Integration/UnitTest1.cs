@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json;
+using Olorun.Integration.Configs;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
