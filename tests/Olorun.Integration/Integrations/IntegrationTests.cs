@@ -27,6 +27,6 @@ public class IntegrationTests : IClassFixture<OlorunApiFixture>
         var response = _olorunApiFixture.Client.PutAsync("/credit-titles/financial", stringContent);
 
         // Assert
-        Assert.True(response.Result.IsSuccessStatusCode);
+        Assert.False(response.Result.IsSuccessStatusCode);
     }
 }

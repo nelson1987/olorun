@@ -21,7 +21,7 @@ namespace Olorun.Integration.Integrations
             );
 
             await MongoFixture.MongoDatabase
-                .GetCollection<WeatherForecast>(nameof(WeatherForecast))
+                .GetCollection<WeatherForecast>("invoices")//nameof(WeatherForecast))
                 .InsertOneAsync(creditNote);
 
             var response = await ApiFixture.Client.GetAsync($"/weatherforecast");

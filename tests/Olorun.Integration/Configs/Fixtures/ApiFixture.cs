@@ -22,10 +22,10 @@ namespace Olorun.Integration.Configs.Fixtures
     }
     public sealed class KafkaFixture
     {
-        private readonly IEventClient _eventClient;
+        //private readonly IEventClient _eventClient;
         public KafkaFixture(Api server)
         {
-            _eventClient = server.Services.GetRequiredService<IEventClient>();
+            //_eventClient = server.Services.GetRequiredService<IEventClient>();
         }
     }
     public sealed class MongoFixture
