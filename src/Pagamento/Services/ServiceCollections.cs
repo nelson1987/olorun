@@ -1,6 +1,7 @@
 using Pagamento.Features;
 using Pagamento.Features.Create;
 using Pagamento.Features.Delete;
+using SharedDomain;
 
 namespace Pagamento.Services;
 public static class Service
@@ -8,7 +9,8 @@ public static class Service
     public static IServiceCollection AddDependencies(this IServiceCollection services)
     {
         services.AddScoped<IWeatherForecastRepository, WeatherForecastRepository>()
-                .AddScoped<IWeatherForecastHandler, WeatherForecastHandler>();
+                .AddScoped<IWeatherForecastHandler, WeatherForecastHandler>()
+                .AddDomain();
         return services;
     }
 

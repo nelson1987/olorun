@@ -20,34 +20,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 //app.UseHttpsRedirection();
-
-app.MapGet("/weatherforecast", async ([FromServices] IWeatherForecastHandler handler, CancellationToken cancellationToken) =>
-{
-    return await handler.GetAsync(cancellationToken);
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
-app.MapPut("/weatherforecast", async ([FromServices] IWeatherForecastHandler handler, Guid idClima, CancellationToken cancellationToken) =>
-{
-    return await handler.PutAsync(idClima, cancellationToken);
-})
-.WithName("PutWeatherForecast")
-.WithOpenApi();
-
-app.MapPost("/weatherforecast", async ([FromServices] IWeatherForecastHandler handler, CancellationToken cancellationToken) =>
-{
-    await handler.PostAsync(cancellationToken);
-})
-.WithName("PostWeatherForecast")
-.WithOpenApi();
-
-app.MapDelete("/weatherforecast", async ([FromServices] IWeatherForecastHandler handler, Guid idClima, CancellationToken cancellationToken) =>
-{
-    await handler.DeleteAsync(idClima, cancellationToken);
-})
-.WithName("DeleteWeatherForecast")
-.WithOpenApi();
+app.AddweatherforecastEndpoints();
 
 app.Run();
 public partial class Program { }
