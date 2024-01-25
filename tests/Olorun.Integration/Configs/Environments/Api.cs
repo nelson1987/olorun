@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 
-namespace Olorun.Integration
+namespace Olorun.Integration.Configs.Environments
 {
     public class Api : WebApplicationFactory<Program>
     {
@@ -13,4 +13,5 @@ namespace Olorun.Integration
                        // services.AddScoped<IWeatherForecastHandler, WeatherForecastHandler>();
                    });
     }
+    public class Worker { }
 }
