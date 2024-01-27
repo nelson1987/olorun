@@ -1,5 +1,6 @@
 ﻿using FluentValidation.Results;
 using SharedDomain.Features;
+using SharedDomain.Shared;
 
 namespace Olorun.Integration.Units;
 public class InclusaoPagamentoTests

@@ -4,17 +4,9 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using SharedDomain.Shared;
 
 namespace SharedDomain.Features;
-/*
- InclusaoPagamentoCommand -> CommandHandler -> (Insert) ReadRepository -> Event -> Producer(Fire And Forget)
- Consumer -> (insert) WriteRepository -> Next Event -> Producer -> (Update) ReadRepository
- Consumer -> (Update) WriteRepository -> Next Event -> Producer -> (Update) ReadRepository
- */
-public interface IEntity
-{
-    Guid Id { get; set; }
-}
 public class Pagamento : IEntity
 {
     public Guid Id { get; set; }
@@ -24,10 +16,6 @@ public class Pagamento : IEntity
     public PagamentoIncluidoType Type { get; set; }
 }
 public enum PagamentoIncluidoType { Open = 1, Submitted = 2, Rejected = 3, Closed = 4 }
-
-public interface ICommand
-{
-}
 public record InclusaoPagamentoCommand : ICommand
 {
     public Guid Id { get; set; }
@@ -41,12 +29,6 @@ public interface ICommandHandler<T, V>
     where V : class
 {
     Task<V> Handle(T command, CancellationToken cancellationToken);
-}
-public abstract class CommandHandler<T, V> : ICommandHandler<T, V>
-    where T : ICommand
-    where V : class
-{
-    public abstract Task<V> Handle(T command, CancellationToken cancellationToken);
 }
 public class PagamentoCommandHandler : CommandHandler<InclusaoPagamentoCommand, Result<Pagamento?>>
 {
@@ -74,16 +56,10 @@ public class PagamentoCommandHandler : CommandHandler<InclusaoPagamentoCommand, 
         return Result.Ok();
     }
 }
-public interface IEvent { }
 public class PagamentoIncluidoEvent : IEvent
 {
     public Guid Id { get; set; }
     public PagamentoIncluidoType Type { get; set; }
-}
-public interface IEventConsumer<T>
-    where T : IEvent
-{
-    Task Consume(T @event, CancellationToken cancellationToken);
 }
 public class PagamentoCriadoConsumer : IEventConsumer<PagamentoIncluidoEvent>
 {
@@ -91,12 +67,6 @@ public class PagamentoCriadoConsumer : IEventConsumer<PagamentoIncluidoEvent>
     {
         throw new NotImplementedException();
     }
-}
-public interface IEventProducer<T>
-    where T : IEvent
-{
-    string TopicName { get; }
-    Task Send(T @event, CancellationToken cancellationToken);
 }
 public class PagamentoIncluidoProducer : IEventProducer<PagamentoIncluidoEvent>
 {
