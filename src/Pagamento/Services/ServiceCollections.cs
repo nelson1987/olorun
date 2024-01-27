@@ -1,7 +1,7 @@
 using Pagamento.Features;
 using Pagamento.Features.Create;
 using Pagamento.Features.Delete;
-using SharedDomain.Features;
+using SharedDomain.Features.Pagamentos;
 
 namespace Pagamento.Services;
 public static class Service

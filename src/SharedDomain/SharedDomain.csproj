@@ -13,8 +13,4 @@
     <PackageReference Include="MongoDB.Driver" Version="2.23.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Inclusao\" />
-  </ItemGroup>
-
 </Project>

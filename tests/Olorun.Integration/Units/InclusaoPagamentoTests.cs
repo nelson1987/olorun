@@ -1,5 +1,7 @@
 ﻿using FluentValidation.Results;
 using SharedDomain.Features;
+using SharedDomain.Features.Pagamentos.Events.Incluido;
+using SharedDomain.Features.Pagamentos.Inclusao;
 using SharedDomain.Shared;
 
 namespace Olorun.Integration.Units;
@@ -13,7 +15,7 @@ public class InclusaoPagamentoTests
     */
     private readonly IFixture _fixture = new Fixture().Customize(new AutoMoqCustomization { ConfigureMembers = true });
     private CancellationToken _token => CancellationToken.None;
-    private readonly PagamentoCommandHandler _handler;
+    private readonly InclusaoPagamentoCommandHandler _handler;
     private readonly InclusaoPagamentoCommand _request;
     private readonly Mock<IValidator<InclusaoPagamentoCommand>> _validator;
     private readonly Mock<IEventProducer<PagamentoIncluidoEvent>> _eventProducer;
@@ -39,7 +41,7 @@ public class InclusaoPagamentoTests
         _eventProducer.Setup(x => x.Send(It.IsAny<PagamentoIncluidoEvent>(), _token))
             .Returns(Task.CompletedTask);
 
-        _handler = _fixture.Build<PagamentoCommandHandler>()
+        _handler = _fixture.Build<InclusaoPagamentoCommandHandler>()
             .Create();
     }
 
