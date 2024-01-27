@@ -1,10 +1,19 @@
-﻿using AutoFixture;
-using AutoFixture.AutoMoq;
-using Moq;
+﻿using FluentValidation.Results;
 using Olorun.Integration.Configs;
+using SharedDomain.Configs;
 
 namespace Olorun.Integration.Units;
+//[UnitTest]
+public class ObjectMapperTests
+{
+    [Fact]
+    public void ValidateMappingConfigurationTest()
+    {
+        var mapper = Mappers.Mapper;
 
+        mapper.ConfigurationProvider.AssertConfigurationIsValid();
+    }
+}
 public class UnitTest
 {
     private readonly IFixture _fixture = new Fixture().Customize(new AutoMoqCustomization { ConfigureMembers = true });
@@ -24,7 +33,7 @@ public class UnitTest
         _validator = _fixture.Freeze<Mock<IValidator<CadastroContaCommand>>>();
         _validator
             .Setup(x => x.Validate(It.IsAny<CadastroContaCommand>()))
-            .Returns(true);
+            .Returns(new ValidationResult());
 
         _antifraudeService = _fixture.Freeze<Mock<IHttpAntifraudeService>>();
         _antifraudeService
@@ -50,12 +59,10 @@ public class UnitTest
     [Fact]
     public void Dado_Request_Invalido_Deve_Retornar_False()
     {
-        _validator
-            .Setup(x => x.Validate(It.IsAny<CadastroContaCommand>()))
-            .Returns(false);
+        var invalidRequest = _request with { Id = Guid.Empty };
 
         // Act
-        var result = _controller.Handle(_request);
+        var result = _controller.Handle(invalidRequest);
 
         // Assert
         Assert.False(result);

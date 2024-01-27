@@ -56,7 +56,9 @@ public class CadastroContaCommandHandler : ICadastroContaCommandHandler
     {
         try
         {
-            if (_validator.Validate(request) &&
+            var validation = _validator.Validate(request);
+
+            if (validation.IsValid &&
                 _antifraudeService.Get(request.Documento))
             {
                 var conta = new Conta()
@@ -87,17 +89,10 @@ public class CadastroContaCommandHandler : ICadastroContaCommandHandler
     }
 }
 
-public interface IValidator<T> where T : class
-{
-    bool Validate(T @object);
-}
 
-public class CadastroContaCommandValidator : IValidator<CadastroContaCommand>
+
+public class CadastroContaCommandValidator : AbstractValidator<CadastroContaCommand>
 {
-    public bool Validate(CadastroContaCommand @object)
-    {
-        return true;
-    }
 }
 
 public interface IHttpAntifraudeService

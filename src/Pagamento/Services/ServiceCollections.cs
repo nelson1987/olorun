@@ -1,14 +1,14 @@
 using Pagamento.Features;
 using Pagamento.Features.Create;
 using Pagamento.Features.Delete;
-using SharedDomain;
+using SharedDomain.Features;
 
 namespace Pagamento.Services;
 public static class Service
 {
     public static IServiceCollection AddDependencies(this IServiceCollection services)
     {
-        services.AddScoped<IWeatherForecastRepository, WeatherForecastRepository>()
+        services.AddScoped<IWeatherForecastRepository, Pagamento.Features.WeatherForecastRepository>()
                 .AddScoped<IWeatherForecastHandler, WeatherForecastHandler>()
                 .AddDomain();
         return services;
@@ -16,7 +16,7 @@ public static class Service
 
     public static IServiceCollection AddMongoDb(this IServiceCollection services, ConfigurationManager configuration)
     {
-        services.Configure<BookStoreDatabaseSettings>(configuration.GetSection("BookStoreDatabase"));
+        services.Configure<Pagamento.Model.BookStoreDatabaseSettings>(configuration.GetSection("BookStoreDatabase"));
         return services;
     }
 
