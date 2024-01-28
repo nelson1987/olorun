@@ -1,28 +1,27 @@
-﻿namespace Olorun.Integration.Configs.Fixtures
+﻿namespace Olorun.Integration.Configs.Fixtures;
+
+public class IntegrationTestFixture : IAsyncLifetime
 {
-    public class IntegrationTestFixture : IAsyncLifetime
+    public ApiFixture ApiFixture { get; }
+    public KafkaFixture KafkaFixture { get; }
+    public MongoFixture MongoFixture { get; }
+
+    public IntegrationTestFixture()
     {
-        public ApiFixture ApiFixture { get; }
-        public KafkaFixture KafkaFixture { get; }
-        public MongoFixture MongoFixture { get; }
+        ApiFixture = new ApiFixture();
+        KafkaFixture = new KafkaFixture(ApiFixture.Server);
+        MongoFixture = new MongoFixture(ApiFixture.Server);
+    }
 
-        public IntegrationTestFixture()
-        {
-            ApiFixture = new ApiFixture();
-            KafkaFixture = new KafkaFixture(ApiFixture.Server);
-            MongoFixture = new MongoFixture(ApiFixture.Server);
-        }
+    public Task InitializeAsync()
+    {
+        //throw new NotImplementedException();
+        return Task.CompletedTask;
+    }
 
-        public Task InitializeAsync()
-        {
-            //throw new NotImplementedException();
-            return Task.CompletedTask;
-        }
-
-        public Task DisposeAsync()
-        {
-            //throw new NotImplementedException();
-            return Task.CompletedTask;
-        }
+    public Task DisposeAsync()
+    {
+        //throw new NotImplementedException();
+        return Task.CompletedTask;
     }
 }

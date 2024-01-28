@@ -1,5 +1,5 @@
 ﻿using FluentValidation.Results;
-using SharedDomain.Features;
+using SharedDomain.Features.Pagamentos;
 using SharedDomain.Features.Pagamentos.Events.Incluido;
 using SharedDomain.Features.Pagamentos.Inclusao;
 using SharedDomain.Shared;
