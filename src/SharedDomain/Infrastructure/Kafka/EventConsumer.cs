@@ -1,6 +1,7 @@
 ﻿using Confluent.Kafka;
 using System.Text.Json;
 using System.Text;
+using SharedDomain.Shared;
 
 namespace Pagamento.Services;
 public class SerializerMessage<TMessage> : ISerializer<TMessage>, IDeserializer<TMessage>
@@ -16,16 +17,11 @@ public class SerializerMessage<TMessage> : ISerializer<TMessage>, IDeserializer<
     }
 }
 
-public interface ITesteMessageProducer<TMessage>
-{
-    Task Produce(TMessage message);
-}
 
-public class TesteMessageProducer<TMessage> : ITesteMessageProducer<TMessage>
+public class EventProducer<TMessage> : IEventProducer<TMessage> where TMessage : IEvent
 {
     private readonly IProducer<Null, TMessage> _producer;
-    private readonly CancellationToken _token = CancellationToken.None;
-    public TesteMessageProducer()
+    public EventProducer()
     {
         var producerConfig = new ProducerConfig
         {
@@ -34,24 +30,24 @@ public class TesteMessageProducer<TMessage> : ITesteMessageProducer<TMessage>
         _producer = new ProducerBuilder<Null, TMessage>(producerConfig)
             .SetValueSerializer(new SerializerMessage<TMessage>())
             .Build();
+        TopicName = "weatherforecast-requested";
     }
-    public async Task Produce(TMessage message)
+
+    public string TopicName { get; }
+
+    public async Task Send(TMessage message, CancellationToken cancellationToken)
     {
-        await _producer.ProduceAsync("weatherforecast-requested", new Message<Null, TMessage>
+        await _producer.ProduceAsync(TopicName, new Message<Null, TMessage>
         {
             Value = message
-        }, _token);
+        }, cancellationToken);
     }
 }
 
-public interface ITesteMessageConsumer<TMessage>
-{
-    Task<TMessage> ConsumeMessageAsync();
-}
-public class TesteMessageConsumer<TMessage> : ITesteMessageConsumer<TMessage>
+public class EventConsumer<TMessage> : IEventConsumer<TMessage> where TMessage : IEvent
 {
     private readonly IConsumer<Null, TMessage> _consumer;
-    public TesteMessageConsumer()
+    public EventConsumer()
     {
         var consumerConfig = new ConsumerConfig
         {
@@ -62,8 +58,11 @@ public class TesteMessageConsumer<TMessage> : ITesteMessageConsumer<TMessage>
         _consumer = new ConsumerBuilder<Null, TMessage>(consumerConfig)
             .SetValueDeserializer(new SerializerMessage<TMessage>())
             .Build();
+        TopicName = "weatherforecast-requested";
     }
-    public async Task<TMessage> ConsumeMessageAsync()
+    public string TopicName { get; }
+
+    public async Task<TMessage> Consume()
     {
         _consumer.Subscribe("weatherforecast-requested");
 

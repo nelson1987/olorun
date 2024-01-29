@@ -1,7 +1,7 @@
 using Pagamento.Services;
 
 namespace Pagamento.Features.Create;
-public class CreateWeatherForecastProducer : TesteMessageProducer<CreateWeatherForecastEvent>
+public class CreateWeatherForecastProducer : EventProducer<CreateWeatherForecastEvent>
 {
     //private readonly IWeatherForecastRepository _repository;
     //private readonly ILogger<CreateWeatherForecastConsumer> _log;

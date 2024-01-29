@@ -22,8 +22,8 @@ public static class Service
 
     public static IServiceCollection AddKafka(this IServiceCollection services)
     {
-        services.AddScoped<ITesteMessageProducer<CreateWeatherForecastEvent>, CreateWeatherForecastProducer>();
-        services.AddScoped<ITesteMessageProducer<DeleteWeatherForecastEvent>, DeleteWeatherForecastProducer>();
+        services.AddScoped<IEventProducer<CreateWeatherForecastEvent>, CreateWeatherForecastProducer>();
+        services.AddScoped<IEventProducer<DeleteWeatherForecastEvent>, DeleteWeatherForecastProducer>();
         services.AddScoped<ITesteMessageConsumer<CreateWeatherForecastEvent>, CreateWeatherForecastConsumer>();
         services.AddScoped<ITesteMessageConsumer<DeleteWeatherForecastEvent>, DeleteWeatherForecastConsumer>();
         return services;

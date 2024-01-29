@@ -23,14 +23,14 @@ public class WeatherForecastHandler : IWeatherForecastHandler
 };
 
     private readonly IWeatherForecastRepository _repository;
-    private readonly ITesteMessageProducer<CreateWeatherForecastEvent> _createProducer;
-    private readonly ITesteMessageProducer<DeleteWeatherForecastEvent> _deleteProducer;
+    private readonly IEventProducer<CreateWeatherForecastEvent> _createProducer;
+    private readonly IEventProducer<DeleteWeatherForecastEvent> _deleteProducer;
 
     public WeatherForecastHandler(IWeatherForecastRepository repository)
     {
         _repository = repository;
-        _createProducer = new TesteMessageProducer<CreateWeatherForecastEvent>();
-        _deleteProducer = new TesteMessageProducer<DeleteWeatherForecastEvent>();
+        _createProducer = new EventProducer<CreateWeatherForecastEvent>();
+        _deleteProducer = new EventProducer<DeleteWeatherForecastEvent>();
     }
 
     public async Task<IList<WeatherForecast>> GetAsync(CancellationToken cancellationToken)
@@ -40,7 +40,7 @@ public class WeatherForecastHandler : IWeatherForecastHandler
 
     public async Task PostAsync(CancellationToken cancellationToken)
     {
-        await _createProducer.Produce(new CreateWeatherForecastEvent()
+        await _createProducer.Send(new CreateWeatherForecastEvent()
         {
             Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
             Id = Guid.NewGuid(),
@@ -64,7 +64,7 @@ public class WeatherForecastHandler : IWeatherForecastHandler
     public async Task DeleteAsync(Guid idClima, CancellationToken cancellationToken)
     {
         var climaAsync = await _repository.GetAsync(idClima, cancellationToken);
-        await _deleteProducer.Produce(new DeleteWeatherForecastEvent()
+        await _deleteProducer.Send(new DeleteWeatherForecastEvent()
         {
             Id = climaAsync!.Id
         });

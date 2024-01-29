@@ -16,12 +16,7 @@ public interface ICommandHandler<T, V>
 {
     Task<V> Handle(T command, CancellationToken cancellationToken);
 }
-public interface IProducer<T> where T : class
-{
-    Task Send(T @event);
-}
-
-public class PagamentoSubmetidoEvent
+public class PagamentoSubmetidoEvent : IEvent
 {
     public Guid Id { get; set; }
     public PagamentoIncluidoType Type { get; set; }

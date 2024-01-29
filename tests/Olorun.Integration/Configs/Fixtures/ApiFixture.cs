@@ -26,7 +26,7 @@ public sealed class ApiFixture : IAsyncDisposable
 public sealed class KafkaFixture
 {
     internal static readonly string[] Topics = GetKafkaTopicNames();
-    private readonly ITesteMessageProducer<TesteMessage> _producer;
+    private readonly IEventProducer<TesteMessage> _producer;
     private readonly ITesteMessageConsumer<TesteMessage> _consumer;
     //private readonly IEventClient _eventClient;
     //private readonly IEventClientConsumers _eventClientConsumers;
@@ -35,7 +35,7 @@ public sealed class KafkaFixture
     {
         //_eventClient = server.Services.GetRequiredService<IEventClient>();
         // _eventClientConsumers = server.Services.GetRequiredService<IEventClientConsumers>();
-        _producer = server.Services.GetRequiredService<ITesteMessageProducer<TesteMessage>>();
+        _producer = server.Services.GetRequiredService<IEventProducer<TesteMessage>>();
         _consumer = server.Services.GetRequiredService<ITesteMessageConsumer<TesteMessage>>();
     }
 
@@ -59,7 +59,7 @@ public sealed class KafkaFixture
     }
     public async Task ProduceMessageAsync(TesteMessage message)
     {
-        await _producer.Produce(message);
+        await _producer.Send(message);
     }
     public async Task<TesteMessage> ConsumeMessageAsync()
     {

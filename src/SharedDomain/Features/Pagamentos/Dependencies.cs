@@ -24,11 +24,11 @@ public static class Dependencies
     private static IServiceCollection AddConsumers(this IServiceCollection services)
     {
         services.AddScoped<IEventConsumer<PagamentoIncluidoEvent>, PagamentoIncluidoConsumer>();
-        services.AddScoped<IProducer<PagamentoSubmetidoEvent>, PagamentoSubmetidoEventProducer>();
         return services;
     }
     private static IServiceCollection AddProducers(this IServiceCollection services)
     {
+        services.AddScoped<IEventProducer<PagamentoSubmetidoEvent>, PagamentoSubmetidoEventProducer>();        
         services.AddScoped<IEventProducer<PagamentoIncluidoEvent>, PagamentoIncluidoProducer>();
         return services;
     }

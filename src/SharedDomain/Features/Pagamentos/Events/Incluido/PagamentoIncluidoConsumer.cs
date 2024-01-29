@@ -1,7 +1,8 @@
-﻿using SharedDomain.Shared;
+﻿using Pagamento.Services;
+using SharedDomain.Shared;
 
 namespace SharedDomain.Features.Pagamentos.Events.Incluido;
-public class PagamentoSubmetidoEventProducer : IProducer<PagamentoSubmetidoEvent>
+public class PagamentoSubmetidoEventProducer : EventProducer<PagamentoSubmetidoEvent>
 {
     public Task Send(PagamentoSubmetidoEvent @event)
     {
@@ -11,17 +12,18 @@ public class PagamentoSubmetidoEventProducer : IProducer<PagamentoSubmetidoEvent
 public class PagamentoIncluidoConsumer : EventConsumer<PagamentoIncluidoEvent>
 {
     private readonly IPagamentoReadRepository _repository;
-    private readonly IProducer<PagamentoSubmetidoEvent> _producer;
+    private readonly IEventProducer<PagamentoSubmetidoEvent> _producer;
 
-    public PagamentoIncluidoConsumer(IPagamentoReadRepository repository, IProducer<PagamentoSubmetidoEvent> producer)
+    public PagamentoIncluidoConsumer(IPagamentoReadRepository repository, IEventProducer<PagamentoSubmetidoEvent> producer)
     {
         _repository = repository;
         _producer = producer;
     }
 
-    public override async Task Consume(PagamentoIncluidoEvent @event, CancellationToken cancellationToken)
-    {
-        var lista = await _repository.GetAsync(cancellationToken);
-        await _producer.Send(@event.MapTo<PagamentoSubmetidoEvent>());
-    }
+    //public override async Task Consume(PagamentoIncluidoEvent @event)
+    //{
+    //    CancellationToken cancellationToken = default(CancellationToken);
+    //    var lista = await _repository.GetAsync(cancellationToken);
+    //    await _producer.Send(@event.MapTo<PagamentoSubmetidoEvent>(), cancellationToken);
+    //}
 }

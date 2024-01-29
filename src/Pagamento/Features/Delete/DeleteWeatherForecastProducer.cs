@@ -2,7 +2,7 @@ using Pagamento.Services;
 
 namespace Pagamento.Features.Delete;
 public class DeleteWeatherForecastProducer :
-        TesteMessageProducer<DeleteWeatherForecastEvent>
+        EventProducer<DeleteWeatherForecastEvent>
 {
     //private readonly IWeatherForecastRepository _repository;
     //private readonly ILogger<DeleteteWeatherForecastConsumer> _log;
