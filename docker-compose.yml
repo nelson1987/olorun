@@ -14,6 +14,7 @@ services:
       KAFKA_CFG_NUM_PARTITIONS: 1
       ALLOW_PLAINTEXT_LISTENER: yes
       KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_CREATE_TOPICS: "weatherforecast-requested:1:1,weatherforecast-responded:1:1,weather-topic:1:1"
     depends_on:
       - zookeeper
 
@@ -38,17 +39,17 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
   
-  init-kafka:
-    image: bitnami/kafka:latest
-    entrypoint: [ '/bin/sh', '-c' ]
-    command: |
-        "
-        kafka-topics --bootstrap-server kafka:9092 --list
-        echo -e 'Creating kafka topics'
-        kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic weatherforecast-requested --replication-factor 1 --partitions 1
-        echo -e 'Successfully created the following topics:'
-        kafka-topics --bootstrap-server kafka:9092 --list
-        "
+  # init-kafka:
+  #   image: bitnami/kafka:latest
+  #   entrypoint: [ '/bin/sh', '-c' ]
+  #   command: |
+  #       "
+  #       kafka-topics --bootstrap-server kafka:9092 --list
+  #       echo -e 'Creating kafka topics'
+  #       kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic weatherforecast-requested --replication-factor 1 --partitions 1
+  #       echo -e 'Successfully created the following topics:'
+  #       kafka-topics --bootstrap-server kafka:9092 --list
+  #       "
   #   networks:
   #     - services
 

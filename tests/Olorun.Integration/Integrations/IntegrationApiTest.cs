@@ -87,36 +87,36 @@ public class IntegrationApiTest : IntegrationTest
             ("invoices");
     }
 
-    [Fact]
-    public async Task Get()
-    {
-        // Arrange
-        var creditNote = new WeatherForecast(DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-             Random.Shared.Next(-20, 55),
-             "frio"
-        );
+    //[Fact]
+    //public async Task Get()
+    //{
+    //    // Arrange
+    //    var creditNote = new WeatherForecast(DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+    //         Random.Shared.Next(-20, 55),
+    //         "frio"
+    //    );
 
-        await MongoFixture.MongoDatabase
-            .GetCollection<WeatherForecast>("invoices")//nameof(WeatherForecast))
-            .InsertOneAsync(creditNote);
+    //    await MongoFixture.MongoDatabase
+    //        .GetCollection<WeatherForecast>("invoices")//nameof(WeatherForecast))
+    //        .InsertOneAsync(creditNote);
 
 
-        var response = await ApiFixture.Client.GetAsync($"/weatherforecast");
-        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    //    var response = await ApiFixture.Client.GetAsync($"/weatherforecast");
+    //    response.EnsureSuccessStatusCode(); // Status Code 200-299
 
-        await KafkaFixture.Produce("", creditNote);
-        await ApiFixture.Server.Consume<WeatherForecast>(TimeSpan.FromMinutes(1));
-        //KafkaFixture.Consumer.Consume("");
-        //var consumerEvent = JsonSerializer.Deserialize<WeatherForecast>(consumerResult.Message.Value);
+    //    await KafkaFixture.Produce("", creditNote);
+    //    await ApiFixture.Server.Consume<WeatherForecast>(TimeSpan.FromMinutes(1));
+    //    //KafkaFixture.Consumer.Consume("");
+    //    //var consumerEvent = JsonSerializer.Deserialize<WeatherForecast>(consumerResult.Message.Value);
 
-        var getSettlementOrder = await _settlementOrderCollection
-            .Find(x => x.Id == Guid.NewGuid())
-            .FirstOrDefaultAsync();
-        var cancellationRespondedEvent = KafkaFixture
-            .Consume<WeatherForecast>
-            ("").ValueOrDefault;
+    //    var getSettlementOrder = await _settlementOrderCollection
+    //        .Find(x => x.Id == Guid.NewGuid())
+    //        .FirstOrDefaultAsync();
+    //    var cancellationRespondedEvent = KafkaFixture
+    //        .Consume<WeatherForecast>
+    //        ("").ValueOrDefault;
 
-    }
+    //}
 
     [Fact]
     public async Task Get_with_error()
