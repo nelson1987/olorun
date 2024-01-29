@@ -1,3 +1,4 @@
+using FluentResults;
 using SharedDomain.Features.WeatherForecasts.Create;
 using SharedDomain.Features.WeatherForecasts.Delete;
 using SharedDomain.Features.WeatherForecasts.Entities;
@@ -42,7 +43,7 @@ public class WeatherForecastHandler : IWeatherForecastHandler
     {
         var command = new CreateWeatherForecastCommand()
         {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Date = DateTime.Now.AddDays(1),
             Id = Guid.NewGuid(),
             Summary = summaries[Random.Shared.Next(summaries.Length)],
             TemperatureC = Random.Shared.Next(-20, 55)
@@ -55,8 +56,7 @@ public class WeatherForecastHandler : IWeatherForecastHandler
         var climaAsync = await _repository.GetAsync(idClima, cancellationToken);
         var clima = climaAsync! with
         {
-            Date =
-                DateOnly.FromDateTime(DateTime.Now.AddDays(2))
+            Date = DateTime.Now.AddDays(2)
         };
         await _repository.UpdateAsync(climaAsync.Id, clima);
         return clima;

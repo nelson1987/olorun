@@ -17,9 +17,12 @@ public class CreateWeatherForecastConsumer : EventConsumer<CreateWeatherForecast
     public async Task Consume(CreateWeatherForecastEvent mensagem)
     {
         _log.LogInformation("Consume");
-        var mensageiro = Consume();
-        WeatherForecast clima = new WeatherForecast(mensagem.Date, mensagem.TemperatureC, mensagem.Summary)
+        var mensageiro = Consume(CancellationToken.None);
+        WeatherForecast clima = new WeatherForecast
         {
+            Date = mensagem.Date,
+            TemperatureC = mensagem.TemperatureC,
+            Summary = mensagem.Summary,
             Id = mensagem.Id
         };
         await _repository.CreateAsync(clima);

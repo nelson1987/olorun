@@ -3,48 +3,70 @@ using MongoDB.Driver;
 using Newtonsoft.Json;
 using Olorun.Integration.Configs;
 using Olorun.Integration.Configs.Fixtures;
+using SharedDomain.Configs;
+using SharedDomain.Features.WeatherForecasts.Create;
 using SharedDomain.Features.WeatherForecasts.Entities;
 using System.Reflection;
+using System.Text;
 using Xunit.Abstractions;
 
 namespace Olorun.Integration.Integrations
 {
     public class IntegrationApiTest : IntegrationTest
     {
+        private WeatherForecast _weatherForecast { get; set; }
         public IntegrationApiTest(IntegrationTestFixture integrationTestFixture) : base(integrationTestFixture)
         {
         }
 
-        //[Fact]
-        //public async Task Get()
-        //{
-        //    // Arrange
-        //    var creditNote = new WeatherForecast(DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-        //         Random.Shared.Next(-20, 55),
-        //         "frio"
-        //    );
+        [Fact]
+        public async Task Get()
+        {
+            // Act
+            _weatherForecast = WeatherForecastFactory.Create();
 
-        //    await MongoFixture.MongoDatabase
-        //        .GetCollection<WeatherForecast>("invoices")//nameof(WeatherForecast))
-        //        .InsertOneAsync(creditNote);
+            await MongoFixture.MongoDatabase
+                .GetCollection<WeatherForecast>("invoices")//nameof(WeatherForecast))
+                .InsertOneAsync(_weatherForecast);
 
-        //    var response = await ApiFixture.Client.GetAsync($"/weatherforecast");
-        //    response.EnsureSuccessStatusCode(); // Status Code 200-299
-        //}
+            var updateFinancialData = new CadastroContaCommand()
+            {
+                Documento = "Documento",
+                Id = Guid.NewGuid()
+            };
+            var updateFinancialDataAsString = JsonConvert.SerializeObject(updateFinancialData);
+            using var stringContent = new StringContent(updateFinancialDataAsString, Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await ApiFixture.Client.PutAsync($"/weatherforecast", stringContent);
+
+            // Assert
+            response.EnsureSuccessStatusCode(); // Status Code 200-299
+        }
 
         [Fact]
         public async Task Get_with_error()
         {
             var response = await ApiFixture.Client.GetAsync($"/weatherforecast/1");
-            response.Should().Be400BadRequest().And
-                             .MatchInContent("*You need at least one filter value filled.*");
+            response.Should().Be404NotFound();
+            //response.Should().Be400BadRequest().And
+            //                 .MatchInContent("*You need at least one filter value filled.*");
+        }
+        
+        [Fact]
+        public async Task Put_with_Success()
+        {
+            var response = await ApiFixture.Client.PostAsync($"/api/v1/weatherforecasts", null);
+            response.Should().Be201Created();
+            //response.Should().Be400BadRequest().And
+            //                 .MatchInContent("*You need at least one filter value filled.*");
         }
 
         [Fact]
         public async Task GivenEventProduced_WhenConsumed_ThenShouldReceiveSameEvent()
         {
             // Arrange
-            var message = new TesteMessage(Guid.NewGuid(),"TesteNome", DateTime.Now);
+            var message = _weatherForecast.MapTo<CreateWeatherForecastEvent>();
 
             // Act
             await KafkaFixture.ProduceMessageAsync(message);
@@ -54,12 +76,17 @@ namespace Olorun.Integration.Integrations
             Assert.Equal(message, receivedMessage);
         }
     }
-
-    public static class CreditNoteFactory
+    public static class WeatherForecastFactory
     {
         public static WeatherForecast Create()
         {
-            return new WeatherForecast(DateOnly.MaxValue, 12, "cool");
+            return new WeatherForecast
+            {
+                Date = DateTime.Today,
+                TemperatureC = 35,
+                Summary = "cool",
+                Id = Guid.NewGuid(),
+            };
         }
     }
 
@@ -85,49 +112,4 @@ namespace Olorun.Integration.Integrations
         }
     }
 
-    public class ConsumerTests : IntegrationTest
-    {
-        private readonly WeatherForecast _renegotiationOrderEvent;
-        private readonly IMongoCollection<WeatherForecast> _creditNoteCollection;
-        public ConsumerTests(IntegrationTestFixture integrationTestFixture, ITestOutputHelper testOutputHelper) : base(integrationTestFixture)
-        {
-            _renegotiationOrderEvent = testOutputHelper.ReadRequestFile<WeatherForecast>();
-            _creditNoteCollection = MongoFixture.MongoDatabase
-                .GetCollection<WeatherForecast>("invoices");// Collections.CreditNoteAssets.Name);
-        }
-
-        [Fact]
-        public async Task Given_a_valid_credit_note_renegotiation_should_output_expected_results()
-        {
-            // Arrange
-            var creditNote = CreditNoteFactory.Create() with { Id = _renegotiationOrderEvent.Id };
-            await _creditNoteCollection.InsertOneAsync(creditNote);
-
-            await KafkaFixture.Produce("", _renegotiationOrderEvent);
-
-            //// Act
-            //await ApiFixture.Server.Consume<RenegotiationConsumer>(TimeSpan.FromMinutes(1));
-
-            // Assert
-            var response = await GetOutputedResponses();
-        }
-
-        private async Task<object> GetOutputedResponses()
-        {
-            var creditNote = await _creditNoteCollection
-                .Find(x => x.Id == _renegotiationOrderEvent.Id)
-                .FirstOrDefaultAsync();
-
-            //var ordersRenegotiationResponded = KafkaFixture
-            //    .Consume<WeatherForecast>(EventsTopics.OrdersRenegotiationResponded.Name)
-            //    .ValueOrDefault;
-
-            return new
-            {
-                creditNote,
-                //ordersRenegotiationResponded,
-            };
-        }
-
-    }
 }

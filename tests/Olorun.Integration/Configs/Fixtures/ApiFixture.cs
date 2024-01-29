@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Olorun.Integration.Configs.Environments;
 using Pagamento.Services;
+using SharedDomain.Features.WeatherForecasts.Create;
+using SharedDomain.Shared;
 
 namespace Olorun.Integration.Configs.Fixtures;
 
@@ -26,8 +28,8 @@ public sealed class ApiFixture : IAsyncDisposable
 public sealed class KafkaFixture
 {
     internal static readonly string[] Topics = GetKafkaTopicNames();
-    private readonly IEventProducer<TesteMessage> _producer;
-    private readonly ITesteMessageConsumer<TesteMessage> _consumer;
+    private readonly IEventProducer<CreateWeatherForecastEvent> _producer;
+    private readonly IEventConsumer<CreateWeatherForecastEvent> _consumer;
     //private readonly IEventClient _eventClient;
     //private readonly IEventClientConsumers _eventClientConsumers;
 
@@ -35,8 +37,8 @@ public sealed class KafkaFixture
     {
         //_eventClient = server.Services.GetRequiredService<IEventClient>();
         // _eventClientConsumers = server.Services.GetRequiredService<IEventClientConsumers>();
-        _producer = server.Services.GetRequiredService<IEventProducer<TesteMessage>>();
-        _consumer = server.Services.GetRequiredService<ITesteMessageConsumer<TesteMessage>>();
+        _producer = server.Services.GetRequiredService<IEventProducer<CreateWeatherForecastEvent>>();
+        _consumer = server.Services.GetRequiredService<IEventConsumer<CreateWeatherForecastEvent>>();
     }
 
     public async Task WarmUp()
@@ -57,13 +59,15 @@ public sealed class KafkaFixture
         if (cts.IsCancellationRequested)
             throw new TimeoutException("Unable to warm up Kafka.");
     }
-    public async Task ProduceMessageAsync(TesteMessage message)
+    public async Task ProduceMessageAsync(CreateWeatherForecastEvent message)
     {
-        await _producer.Send(message);
+        using var cancellationToken = ExpiringCancellationToken();
+        await _producer.Send(message, cancellationToken.Token);
     }
-    public async Task<TesteMessage> ConsumeMessageAsync()
+    public async Task<CreateWeatherForecastEvent> ConsumeMessageAsync()
     {
-        return _consumer.ConsumeMessageAsync().Result;
+        using var cancellationToken = ExpiringCancellationToken();
+        return _consumer.Consume(cancellationToken.Token).Result;
     }
 
     public Task<bool> Produce<T>(string topic, T data)

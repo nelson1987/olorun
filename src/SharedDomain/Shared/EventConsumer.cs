@@ -7,7 +7,7 @@ public interface IEventConsumer<T>
     where T : IEvent
 {
     string TopicName { get; }
-    Task<T> Consume();
+    Task<T> Consume(CancellationToken cancellationToken);
 }
 
 public class EventConsumer<TMessage> : IEventConsumer<TMessage> where TMessage : IEvent
@@ -28,7 +28,7 @@ public class EventConsumer<TMessage> : IEventConsumer<TMessage> where TMessage :
     }
     public string TopicName { get; }
 
-    public async Task<TMessage> Consume()
+    public async Task<TMessage> Consume(CancellationToken cancellationToken)
     {
         _consumer.Subscribe("weatherforecast-requested");
 
