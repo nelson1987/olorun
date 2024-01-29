@@ -1,5 +1,5 @@
-using SharedDomain.Features.WeatherForecast.Entities;
-using SharedDomain.Features.WeatherForecasts;
+using Microsoft.Extensions.Logging;
+using SharedDomain.Features.WeatherForecasts.Entities;
 using SharedDomain.Shared;
 
 namespace SharedDomain.Features.WeatherForecasts.Create;

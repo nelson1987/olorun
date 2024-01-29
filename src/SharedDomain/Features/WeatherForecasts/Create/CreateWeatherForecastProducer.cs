@@ -1,4 +1,3 @@
-using Pagamento.Services;
 using SharedDomain.Shared;
 
 namespace SharedDomain.Features.WeatherForecasts.Create;

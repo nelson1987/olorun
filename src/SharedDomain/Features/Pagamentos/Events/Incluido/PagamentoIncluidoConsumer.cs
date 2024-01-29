@@ -1,5 +1,4 @@
-﻿using Pagamento.Services;
-using SharedDomain.Shared;
+﻿using SharedDomain.Shared;
 
 namespace SharedDomain.Features.Pagamentos.Events.Incluido;
 public class PagamentoSubmetidoEventProducer : EventProducer<PagamentoSubmetidoEvent>

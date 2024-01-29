@@ -1,4 +1,3 @@
-using Pagamento.Features;
 using Pagamento.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,9 +9,8 @@ builder.Services.AddSwaggerGen();
 //Mongo
 builder.Services
                 .AddDependencies()
-                .AddMongoDb(builder.Configuration)
+                .AddMongoDb(builder.Configuration);
                 //Redis
-                .AddKafka();
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())

@@ -40,13 +40,14 @@ public class WeatherForecastHandler : IWeatherForecastHandler
 
     public async Task PostAsync(CancellationToken cancellationToken)
     {
-        await _createProducer.Send(new CreateWeatherForecastEvent()
+        var command = new CreateWeatherForecastCommand()
         {
             Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
             Id = Guid.NewGuid(),
             Summary = summaries[Random.Shared.Next(summaries.Length)],
             TemperatureC = Random.Shared.Next(-20, 55)
-        }, cancellationToken);
+        };
+        await _createProducer.Send(command.MapTo<CreateWeatherForecastEvent>(), cancellationToken);
     }
 
     public async Task<WeatherForecast> PutAsync(Guid idClima, CancellationToken cancellationToken)

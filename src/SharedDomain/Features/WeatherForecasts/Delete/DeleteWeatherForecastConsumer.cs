@@ -1,4 +1,4 @@
-using SharedDomain.Features.WeatherForecasts;
+using Microsoft.Extensions.Logging;
 using SharedDomain.Shared;
 
 namespace SharedDomain.Features.WeatherForecasts.Delete;

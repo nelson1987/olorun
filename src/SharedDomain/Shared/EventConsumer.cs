@@ -1,5 +1,5 @@
 ﻿using Confluent.Kafka;
-using Pagamento.Services;
+using SharedDomain.Infrastructure.Kafka;
 
 namespace SharedDomain.Shared;
 
