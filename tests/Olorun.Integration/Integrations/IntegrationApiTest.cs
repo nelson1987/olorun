@@ -1,128 +1,118 @@
-using Confluent.Kafka;
 using FluentAssertions;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using Olorun.Integration.Configs;
 using Olorun.Integration.Configs.Fixtures;
 using Pagamento.Features.Entities;
-using System.Text.Json;
+using System.Reflection;
+using Xunit.Abstractions;
 
-namespace Olorun.Integration.Integrations;
-public interface IKafkaProducer
+namespace Olorun.Integration.Integrations
 {
-    Task Produce<TMessage>(string topic, TMessage message);
-}
-
-public interface IKafkaConsumer
-{
-    void Consume(string topic);
-}
-
-public class KafkaConsumer
-{
-    private readonly IConsumer<Null, string>? _kafkaConsumer;
-
-    public KafkaConsumer()
+    public class IntegrationApiTest : IntegrationTest
     {
-        var config = new ConsumerConfig { BootstrapServers = "" };
-        _kafkaConsumer = new ConsumerBuilder<Null, string>(config).Build();
-    }
-
-    public void Consume(string topic)
-    {
-        _kafkaConsumer.Subscribe(topic);
-    }
-}
-
-public class KafkaProducer : IKafkaProducer
-{
-    //private readonly IProducer<WeatherForecast>? _kafkaProducer;
-    private readonly IProducer<Null, string>? _kafkaProducer;
-    private int disposed;
-
-    public KafkaProducer()
-    {
-        var config = new ProducerConfig { BootstrapServers = "" };
-        _kafkaProducer = new ProducerBuilder<Null, string>(config).Build();
-    }
-    public async Task Produce<TMessage>(string topic, TMessage message)
-    {
-        await _kafkaProducer.ProduceAsync(topic, new Message<Null, string>
+        public IntegrationApiTest(IntegrationTestFixture integrationTestFixture) : base(integrationTestFixture)
         {
-            Value = JsonSerializer.Serialize(message)
-        });
+        }
+
+        [Fact]
+        public async Task Get()
+        {
+            // Arrange
+            var creditNote = new WeatherForecast(DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                 Random.Shared.Next(-20, 55),
+                 "frio"
+            );
+
+            await MongoFixture.MongoDatabase
+                .GetCollection<WeatherForecast>("invoices")//nameof(WeatherForecast))
+                .InsertOneAsync(creditNote);
+
+            var response = await ApiFixture.Client.GetAsync($"/weatherforecast");
+            response.EnsureSuccessStatusCode(); // Status Code 200-299
+        }
+
+        [Fact]
+        public async Task Get_with_error()
+        {
+            var response = await ApiFixture.Client.GetAsync($"/weatherforecast/1");
+            response.Should().Be400BadRequest().And
+                             .MatchInContent("*You need at least one filter value filled.*");
+        }
     }
-    public void Dispose()
+
+    public static class CreditNoteFactory
     {
-        if (Interlocked.CompareExchange(ref disposed, 1, 0) == 1) return;
-        _kafkaProducer?.Flush();
-        _kafkaProducer?.Dispose();
+        public static WeatherForecast Create()
+        {
+            return new WeatherForecast(DateOnly.MaxValue, 12, "cool");
+        }
     }
 
-    public Task Subscribe<TMessage>(string topic, TMessage message)
+    public static class TestOutputHelperExtensions
     {
-        throw new NotImplementedException();
-    }
-}
-public class OrdersController
-{
-    private readonly IKafkaProducer _kafkaProducer;
+        private static string GetFilePath(ITestOutputHelper testOutputHelper)
+        {
+            var type = testOutputHelper.GetType();
+            var testMember = type.GetField("test", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var test = ((ITest)testMember.GetValue(testOutputHelper)!)!;
+            var className = test.TestCase.TestMethod.TestClass.Class.Name.Split('.').Last().Split('+').First();
+            var testDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 
-    public OrdersController(IKafkaProducer kafkaProducer)
+            return Path.Combine(testDirectory, "Files", $"{className}.request.json");
+        }
+
+        public static T ReadRequestFile<T>(this ITestOutputHelper testOutputHelper)
+        {
+            var path = GetFilePath(testOutputHelper);
+            using var stream = new StreamReader(path);
+            using var reader = new JsonTextReader(stream);
+            return JsonSerializer.Create()!.Deserialize<T>(reader)!;
+        }
+    }
+
+    public class ConsumerTests : IntegrationTest
     {
-        _kafkaProducer = kafkaProducer;
+        private readonly WeatherForecast _renegotiationOrderEvent;
+        private readonly IMongoCollection<WeatherForecast> _creditNoteCollection;
+        public ConsumerTests(IntegrationTestFixture integrationTestFixture, ITestOutputHelper testOutputHelper) : base(integrationTestFixture)
+        {
+            _renegotiationOrderEvent = testOutputHelper.ReadRequestFile<WeatherForecast>();
+            _creditNoteCollection = MongoFixture.MongoDatabase
+                .GetCollection<WeatherForecast>("invoices");// Collections.CreditNoteAssets.Name);
+        }
+
+        [Fact]
+        public async Task Given_a_valid_credit_note_renegotiation_should_output_expected_results()
+        {
+            // Arrange
+            var creditNote = CreditNoteFactory.Create() with { Id = _renegotiationOrderEvent.Id };
+            await _creditNoteCollection.InsertOneAsync(creditNote);
+
+            //await KafkaFixture.Produce(EventsTopics.OrdersRenegotiationRequested.Name, _renegotiationOrderEvent);
+
+            //// Act
+            //await ApiFixture.Server.Consume<RenegotiationConsumer>(TimeSpan.FromMinutes(1));
+
+            // Assert
+            var response = await GetOutputedResponses();
+        }
+
+        private async Task<object> GetOutputedResponses()
+        {
+            var creditNote = await _creditNoteCollection
+                .Find(x => x.Id == _renegotiationOrderEvent.Id)
+                .FirstOrDefaultAsync();
+
+            //var ordersRenegotiationResponded = KafkaFixture
+            //    .Consume<WeatherForecast>(EventsTopics.OrdersRenegotiationResponded.Name)
+            //    .ValueOrDefault;
+
+            return new
+            {
+                creditNote,
+                //ordersRenegotiationResponded,
+            };
+        }
+
     }
-
-    public async Task CreateOrder(WeatherForecast @event)
-    {
-        await _kafkaProducer.Produce("", @event);
-    }
-}
-public class IntegrationApiTest : IntegrationTest
-{
-    private readonly IMongoCollection<WeatherForecast> _settlementOrderCollection;
-    public IntegrationApiTest(IntegrationTestFixture integrationTestFixture) : base(integrationTestFixture)
-    {
-        _settlementOrderCollection = MongoFixture.MongoDatabase.
-            GetCollection<WeatherForecast>
-            ("invoices");
-    }
-
-    //[Fact]
-    //public async Task Get()
-    //{
-    //    // Arrange
-    //    var creditNote = new WeatherForecast(DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-    //         Random.Shared.Next(-20, 55),
-    //         "frio"
-    //    );
-
-    //    await MongoFixture.MongoDatabase
-    //        .GetCollection<WeatherForecast>("invoices")//nameof(WeatherForecast))
-    //        .InsertOneAsync(creditNote);
-
-
-    //    var response = await ApiFixture.Client.GetAsync($"/weatherforecast");
-    //    response.EnsureSuccessStatusCode(); // Status Code 200-299
-
-    //    await KafkaFixture.Produce("", creditNote);
-    //    await ApiFixture.Server.Consume<WeatherForecast>(TimeSpan.FromMinutes(1));
-    //    //KafkaFixture.Consumer.Consume("");
-    //    //var consumerEvent = JsonSerializer.Deserialize<WeatherForecast>(consumerResult.Message.Value);
-
-    //    var getSettlementOrder = await _settlementOrderCollection
-    //        .Find(x => x.Id == Guid.NewGuid())
-    //        .FirstOrDefaultAsync();
-    //    var cancellationRespondedEvent = KafkaFixture
-    //        .Consume<WeatherForecast>
-    //        ("").ValueOrDefault;
-
-    //}
-
-    [Fact]
-    public async Task Get_with_error()
-    {
-        var response = await ApiFixture.Client.GetAsync($"/weatherforecast/1");
-        response.Should().Be400BadRequest().And
-                         .MatchInContent("*You need at least one filter value filled.*");
-    }
-}
