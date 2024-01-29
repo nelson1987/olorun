@@ -1,8 +1,8 @@
 using Pagamento.Features.Entities;
+using Pagamento.Services;
 
 namespace Pagamento.Features.Create;
-public class CreateWeatherForecastConsumer :
-        IConsumer<CreateWeatherForecastEvent>
+public class CreateWeatherForecastConsumer : TesteMessageConsumer<CreateWeatherForecastEvent>
 {
     private readonly IWeatherForecastRepository _repository;
     private readonly ILogger<CreateWeatherForecastConsumer> _log;
@@ -13,10 +13,10 @@ public class CreateWeatherForecastConsumer :
         _log = log;
     }
 
-    public async Task Consume(ConsumeContext<CreateWeatherForecastEvent> context)
+    public async Task Consume(CreateWeatherForecastEvent mensagem)
     {
         _log.LogInformation("Consume");
-        CreateWeatherForecastEvent mensagem = context.Message;
+        var mensageiro = ConsumeMessageAsync();
         WeatherForecast clima = new WeatherForecast(mensagem.Date, mensagem.TemperatureC, mensagem.Summary)
         {
             Id = mensagem.Id

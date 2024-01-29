@@ -1,6 +1,7 @@
 using Pagamento.Features.Create;
 using Pagamento.Features.Delete;
 using Pagamento.Features.Entities;
+using Pagamento.Services;
 
 namespace Pagamento.Features;
 public interface IWeatherForecastHandler
@@ -22,16 +23,14 @@ public class WeatherForecastHandler : IWeatherForecastHandler
 };
 
     private readonly IWeatherForecastRepository _repository;
-    private readonly ITopicProducer<CreateWeatherForecastEvent> _createProducer;
-    private readonly ITopicProducer<DeleteWeatherForecastEvent> _deleteProducer;
+    private readonly ITesteMessageProducer<CreateWeatherForecastEvent> _createProducer;
+    private readonly ITesteMessageProducer<DeleteWeatherForecastEvent> _deleteProducer;
 
-    public WeatherForecastHandler(IWeatherForecastRepository repository,
-        ITopicProducer<CreateWeatherForecastEvent> createProducer,
-        ITopicProducer<DeleteWeatherForecastEvent> deleteProducer)
+    public WeatherForecastHandler(IWeatherForecastRepository repository)
     {
         _repository = repository;
-        _createProducer = createProducer;
-        _deleteProducer = deleteProducer;
+        _createProducer = new TesteMessageProducer<CreateWeatherForecastEvent>();
+        _deleteProducer = new TesteMessageProducer<DeleteWeatherForecastEvent>();
     }
 
     public async Task<IList<WeatherForecast>> GetAsync(CancellationToken cancellationToken)

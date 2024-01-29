@@ -36,10 +36,3 @@ public class BookStoreDatabaseSettings
 
     public string BooksCollectionName { get; set; } = null!;
 }
-
-public class KafkaProducer<T> where T : IEvent
-{
-}
-public class KafkaConsume<T> where T : IEvent
-{
-}

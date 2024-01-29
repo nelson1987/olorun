@@ -8,7 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 //Mongo
-builder.Services.AddDependencies()
+builder.Services
+                .AddDependencies()
                 .AddMongoDb(builder.Configuration)
                 //Redis
                 .AddKafka();
@@ -21,7 +22,7 @@ if (app.Environment.IsDevelopment())
 }
 //app.UseHttpsRedirection();
 
-app.AddweatherforecastEndpoints();
+app.AddWeatherForecastEndpoints();
 
 app.Run();
 public partial class Program { }

@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Pagamento.Features;
+﻿using Pagamento.Features;
 using Pagamento.Features.Entities;
 
 namespace Pagamento.Services
 {
     public static class Controllers
     {
-        public static IEndpointRouteBuilder AddweatherforecastEndpoints(this IEndpointRouteBuilder app)
+        public static IEndpointRouteBuilder AddWeatherForecastEndpoints(this IEndpointRouteBuilder app)
         {
             var todoItems = app.MapGroup("api/v1/weatherforecasts")
                     //.RequireAuthorization()

@@ -17,12 +17,14 @@ public static class Dependencies
             .AddHandlers()
             .AddCommands()
             .AddValidators()
-            .AddEntities();
+            .AddEntities()
+            .AddRepositories();
         return services;
     }
     private static IServiceCollection AddConsumers(this IServiceCollection services)
     {
-        services.AddScoped<EventConsumer<PagamentoIncluidoEvent>, PagamentoIncluidoConsumer>();
+        services.AddScoped<IEventConsumer<PagamentoIncluidoEvent>, PagamentoIncluidoConsumer>();
+        services.AddScoped<IProducer<PagamentoSubmetidoEvent>, PagamentoSubmetidoEventProducer>();
         return services;
     }
     private static IServiceCollection AddProducers(this IServiceCollection services)
@@ -53,6 +55,11 @@ public static class Dependencies
     private static IServiceCollection AddEntities(this IServiceCollection services)
     {
         services.AddScoped<IEntity, Pagamento>();
+        return services;
+    }
+    private static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IPagamentoReadRepository, PagamentoReadRepository>();
         return services;
     }
 }

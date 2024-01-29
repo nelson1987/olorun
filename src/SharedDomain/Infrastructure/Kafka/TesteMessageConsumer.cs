@@ -1,11 +1,8 @@
 ﻿using Confluent.Kafka;
-using Newtonsoft.Json.Linq;
-using System.Text;
 using System.Text.Json;
+using System.Text;
 
-namespace Olorun.Integration;
-public record TesteMessage(Guid Id, string Nome, DateTime Criacao);
-/*
+namespace Pagamento.Services;
 public class SerializerMessage<TMessage> : ISerializer<TMessage>, IDeserializer<TMessage>
 {
     public TMessage Deserialize(ReadOnlySpan<byte> data, bool isNull, SerializationContext context)
@@ -19,7 +16,7 @@ public class SerializerMessage<TMessage> : ISerializer<TMessage>, IDeserializer<
     }
 }
 
-public interface ITesteMessageProducer<TMessage> 
+public interface ITesteMessageProducer<TMessage>
 {
     Task Produce(TMessage message);
 }
@@ -51,7 +48,6 @@ public interface ITesteMessageConsumer<TMessage>
 {
     Task<TMessage> ConsumeMessageAsync();
 }
-
 public class TesteMessageConsumer<TMessage> : ITesteMessageConsumer<TMessage>
 {
     private readonly IConsumer<Null, TMessage> _consumer;
@@ -76,4 +72,3 @@ public class TesteMessageConsumer<TMessage> : ITesteMessageConsumer<TMessage>
         return consumeResult.Message.Value;
     }
 }
-*/

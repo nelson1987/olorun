@@ -163,6 +163,8 @@ public class Api : WebApplicationFactory<Program>
                .ConfigureTestServices(services =>
                {
                    // services.AddScoped<IWeatherForecastHandler, WeatherForecastHandler>();
+                   services.AddScoped<ITesteMessageProducer<TesteMessage>, TesteMessageProducer<TesteMessage>>();
+                   services.AddScoped<ITesteMessageConsumer<TesteMessage>, TesteMessageConsumer<TesteMessage>>();
                });
 
     internal Task Consume<TConsumer>(TimeSpan? timeout = null) where TConsumer : IConsumer

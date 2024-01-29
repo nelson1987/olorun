@@ -1,8 +1,10 @@
-﻿using FluentResults;
+﻿using Confluent.Kafka;
+using FluentResults;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Olorun.Integration.Configs.Environments;
+using Pagamento.Services;
 
 namespace Olorun.Integration.Configs.Fixtures;
 
@@ -24,13 +26,17 @@ public sealed class ApiFixture : IAsyncDisposable
 public sealed class KafkaFixture
 {
     internal static readonly string[] Topics = GetKafkaTopicNames();
-    private readonly IEventClient _eventClient;
+    private readonly ITesteMessageProducer<TesteMessage> _producer;
+    private readonly ITesteMessageConsumer<TesteMessage> _consumer;
+    //private readonly IEventClient _eventClient;
     //private readonly IEventClientConsumers _eventClientConsumers;
 
     public KafkaFixture(Api server)
     {
-        _eventClient = server.Services.GetRequiredService<IEventClient>();
+        //_eventClient = server.Services.GetRequiredService<IEventClient>();
         // _eventClientConsumers = server.Services.GetRequiredService<IEventClientConsumers>();
+        _producer = server.Services.GetRequiredService<ITesteMessageProducer<TesteMessage>>();
+        _consumer = server.Services.GetRequiredService<ITesteMessageConsumer<TesteMessage>>();
     }
 
     public async Task WarmUp()
@@ -50,6 +56,14 @@ public sealed class KafkaFixture
 
         if (cts.IsCancellationRequested)
             throw new TimeoutException("Unable to warm up Kafka.");
+    }
+    public async Task ProduceMessageAsync(TesteMessage message)
+    {
+        await _producer.Produce(message);
+    }
+    public async Task<TesteMessage> ConsumeMessageAsync()
+    {
+        return _consumer.ConsumeMessageAsync().Result;
     }
 
     public Task<bool> Produce<T>(string topic, T data)

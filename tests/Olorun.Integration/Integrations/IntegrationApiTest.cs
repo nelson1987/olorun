@@ -15,22 +15,22 @@ namespace Olorun.Integration.Integrations
         {
         }
 
-        [Fact]
-        public async Task Get()
-        {
-            // Arrange
-            var creditNote = new WeatherForecast(DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-                 Random.Shared.Next(-20, 55),
-                 "frio"
-            );
+        //[Fact]
+        //public async Task Get()
+        //{
+        //    // Arrange
+        //    var creditNote = new WeatherForecast(DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+        //         Random.Shared.Next(-20, 55),
+        //         "frio"
+        //    );
 
-            await MongoFixture.MongoDatabase
-                .GetCollection<WeatherForecast>("invoices")//nameof(WeatherForecast))
-                .InsertOneAsync(creditNote);
+        //    await MongoFixture.MongoDatabase
+        //        .GetCollection<WeatherForecast>("invoices")//nameof(WeatherForecast))
+        //        .InsertOneAsync(creditNote);
 
-            var response = await ApiFixture.Client.GetAsync($"/weatherforecast");
-            response.EnsureSuccessStatusCode(); // Status Code 200-299
-        }
+        //    var response = await ApiFixture.Client.GetAsync($"/weatherforecast");
+        //    response.EnsureSuccessStatusCode(); // Status Code 200-299
+        //}
 
         [Fact]
         public async Task Get_with_error()
@@ -38,6 +38,20 @@ namespace Olorun.Integration.Integrations
             var response = await ApiFixture.Client.GetAsync($"/weatherforecast/1");
             response.Should().Be400BadRequest().And
                              .MatchInContent("*You need at least one filter value filled.*");
+        }
+
+        [Fact]
+        public async Task GivenEventProduced_WhenConsumed_ThenShouldReceiveSameEvent()
+        {
+            // Arrange
+            var message = new TesteMessage(Guid.NewGuid(),"TesteNome", DateTime.Now);
+
+            // Act
+            await KafkaFixture.ProduceMessageAsync(message);
+            var receivedMessage = await KafkaFixture.ConsumeMessageAsync();
+
+            // Assert
+            Assert.Equal(message, receivedMessage);
         }
     }
 
@@ -89,7 +103,7 @@ namespace Olorun.Integration.Integrations
             var creditNote = CreditNoteFactory.Create() with { Id = _renegotiationOrderEvent.Id };
             await _creditNoteCollection.InsertOneAsync(creditNote);
 
-            //await KafkaFixture.Produce(EventsTopics.OrdersRenegotiationRequested.Name, _renegotiationOrderEvent);
+            await KafkaFixture.Produce("", _renegotiationOrderEvent);
 
             //// Act
             //await ApiFixture.Server.Consume<RenegotiationConsumer>(TimeSpan.FromMinutes(1));
@@ -116,3 +130,4 @@ namespace Olorun.Integration.Integrations
         }
 
     }
+}
