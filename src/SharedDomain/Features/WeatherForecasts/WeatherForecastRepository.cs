@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using Pagamento.Features.Entities;
+using SharedDomain.Features.WeatherForecasts.Entities;
 
-namespace Pagamento.Features;
+namespace SharedDomain.Features.WeatherForecasts;
 
 public interface IWeatherForecastRepository
 {

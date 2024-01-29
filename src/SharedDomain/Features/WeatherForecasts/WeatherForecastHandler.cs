@@ -1,9 +1,9 @@
-using Pagamento.Features.Create;
-using Pagamento.Features.Delete;
-using Pagamento.Features.Entities;
-using Pagamento.Services;
+using SharedDomain.Features.WeatherForecasts.Create;
+using SharedDomain.Features.WeatherForecasts.Delete;
+using SharedDomain.Features.WeatherForecasts.Entities;
+using SharedDomain.Shared;
 
-namespace Pagamento.Features;
+namespace SharedDomain.Features.WeatherForecasts;
 public interface IWeatherForecastHandler
 {
     Task<IList<WeatherForecast>> GetAsync(CancellationToken cancellationToken);
@@ -26,11 +26,11 @@ public class WeatherForecastHandler : IWeatherForecastHandler
     private readonly IEventProducer<CreateWeatherForecastEvent> _createProducer;
     private readonly IEventProducer<DeleteWeatherForecastEvent> _deleteProducer;
 
-    public WeatherForecastHandler(IWeatherForecastRepository repository)
+    public WeatherForecastHandler(IWeatherForecastRepository repository, IEventProducer<CreateWeatherForecastEvent> createProducer, IEventProducer<DeleteWeatherForecastEvent> deleteProducer)
     {
         _repository = repository;
-        _createProducer = new EventProducer<CreateWeatherForecastEvent>();
-        _deleteProducer = new EventProducer<DeleteWeatherForecastEvent>();
+        _createProducer = createProducer;
+        _deleteProducer = deleteProducer;
     }
 
     public async Task<IList<WeatherForecast>> GetAsync(CancellationToken cancellationToken)
@@ -46,7 +46,7 @@ public class WeatherForecastHandler : IWeatherForecastHandler
             Id = Guid.NewGuid(),
             Summary = summaries[Random.Shared.Next(summaries.Length)],
             TemperatureC = Random.Shared.Next(-20, 55)
-        });
+        }, cancellationToken);
     }
 
     public async Task<WeatherForecast> PutAsync(Guid idClima, CancellationToken cancellationToken)
@@ -67,6 +67,6 @@ public class WeatherForecastHandler : IWeatherForecastHandler
         await _deleteProducer.Send(new DeleteWeatherForecastEvent()
         {
             Id = climaAsync!.Id
-        });
+        }, cancellationToken);
     }
 }

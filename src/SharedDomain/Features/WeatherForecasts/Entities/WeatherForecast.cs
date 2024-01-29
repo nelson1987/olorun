@@ -1,6 +1,6 @@
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Pagamento.Features.Entities;
+namespace SharedDomain.Features.WeatherForecasts.Entities;
 public record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     [BsonId]

@@ -11,7 +11,8 @@ public static class Dependencies
 {
     public static IServiceCollection AddDomain(this IServiceCollection services)
     {
-        services.AddConsumers()
+        services
+            .AddConsumers()
             .AddProducers()
             .AddEvents()
             .AddHandlers()

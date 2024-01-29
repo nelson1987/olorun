@@ -18,7 +18,7 @@ public class InclusaoPagamentoTests
     private readonly InclusaoPagamentoCommandHandler _handler;
     private readonly InclusaoPagamentoCommand _request;
     private readonly Mock<IValidator<InclusaoPagamentoCommand>> _validator;
-    private readonly Mock<IEventProducer<PagamentoIncluidoEvent>> _eventProducer;
+    private readonly Mock<EventProducer<PagamentoIncluidoEvent>> _eventProducer;
     private readonly Mock<IPagamentoReadRepository> _repository;
 
     public InclusaoPagamentoTests()
@@ -28,7 +28,7 @@ public class InclusaoPagamentoTests
 
         _validator = _fixture.Freeze<Mock<IValidator<InclusaoPagamentoCommand>>>();
         _repository = _fixture.Freeze<Mock<IPagamentoReadRepository>>();
-        _eventProducer = _fixture.Freeze<Mock<IEventProducer<PagamentoIncluidoEvent>>>();
+        _eventProducer = _fixture.Freeze<Mock<EventProducer<PagamentoIncluidoEvent>>>();
 
         _validator
             .Setup(x => x.Validate(It.IsAny<InclusaoPagamentoCommand>()))

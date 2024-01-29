@@ -12,9 +12,9 @@ public class PagamentoSubmetidoEventProducer : EventProducer<PagamentoSubmetidoE
 public class PagamentoIncluidoConsumer : EventConsumer<PagamentoIncluidoEvent>
 {
     private readonly IPagamentoReadRepository _repository;
-    private readonly IEventProducer<PagamentoSubmetidoEvent> _producer;
+    private readonly EventProducer<PagamentoSubmetidoEvent> _producer;
 
-    public PagamentoIncluidoConsumer(IPagamentoReadRepository repository, IEventProducer<PagamentoSubmetidoEvent> producer)
+    public PagamentoIncluidoConsumer(IPagamentoReadRepository repository, EventProducer<PagamentoSubmetidoEvent> producer)
     {
         _repository = repository;
         _producer = producer;

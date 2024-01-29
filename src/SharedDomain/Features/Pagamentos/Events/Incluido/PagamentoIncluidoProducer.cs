@@ -2,7 +2,7 @@
 
 namespace SharedDomain.Features.Pagamentos.Events.Incluido;
 
-public class PagamentoIncluidoProducer : IEventProducer<PagamentoIncluidoEvent>
+public class PagamentoIncluidoProducer : EventProducer<PagamentoIncluidoEvent>
 {
     public string TopicName => "pagamento-criado";
 

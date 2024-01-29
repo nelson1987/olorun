@@ -10,12 +10,7 @@ public class Pagamento : IEntity
     public PagamentoIncluidoType Type { get; set; }
 }
 public enum PagamentoIncluidoType { Open = 1, Submitted = 2, Rejected = 3, Closed = 4 }
-public interface ICommandHandler<T, V>
-    where T : ICommand
-    where V : class
-{
-    Task<V> Handle(T command, CancellationToken cancellationToken);
-}
+
 public class PagamentoSubmetidoEvent : IEvent
 {
     public Guid Id { get; set; }

@@ -1,6 +1,7 @@
 using Pagamento.Services;
+using SharedDomain.Shared;
 
-namespace Pagamento.Features.Create;
+namespace SharedDomain.Features.WeatherForecasts.Create;
 public class CreateWeatherForecastProducer : EventProducer<CreateWeatherForecastEvent>
 {
     //private readonly IWeatherForecastRepository _repository;

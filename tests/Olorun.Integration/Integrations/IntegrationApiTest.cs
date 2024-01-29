@@ -3,7 +3,7 @@ using MongoDB.Driver;
 using Newtonsoft.Json;
 using Olorun.Integration.Configs;
 using Olorun.Integration.Configs.Fixtures;
-using Pagamento.Features.Entities;
+using SharedDomain.Features.WeatherForecasts.Entities;
 using System.Reflection;
 using Xunit.Abstractions;
 

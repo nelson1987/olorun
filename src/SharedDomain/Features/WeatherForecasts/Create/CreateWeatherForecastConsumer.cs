@@ -1,7 +1,8 @@
-using Pagamento.Features.Entities;
-using Pagamento.Services;
+using SharedDomain.Features.WeatherForecast.Entities;
+using SharedDomain.Features.WeatherForecasts;
+using SharedDomain.Shared;
 
-namespace Pagamento.Features.Create;
+namespace SharedDomain.Features.WeatherForecasts.Create;
 public class CreateWeatherForecastConsumer : EventConsumer<CreateWeatherForecastEvent>
 {
     private readonly IWeatherForecastRepository _repository;
@@ -16,7 +17,7 @@ public class CreateWeatherForecastConsumer : EventConsumer<CreateWeatherForecast
     public async Task Consume(CreateWeatherForecastEvent mensagem)
     {
         _log.LogInformation("Consume");
-        var mensageiro = ConsumeMessageAsync();
+        var mensageiro = Consume();
         WeatherForecast clima = new WeatherForecast(mensagem.Date, mensagem.TemperatureC, mensagem.Summary)
         {
             Id = mensagem.Id

@@ -1,5 +1,5 @@
-﻿using Pagamento.Features;
-using Pagamento.Features.Entities;
+﻿using SharedDomain.Features.WeatherForecasts;
+using SharedDomain.Features.WeatherForecasts.Entities;
 
 namespace Pagamento.Services
 {

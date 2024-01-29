@@ -1,6 +1,6 @@
 using SharedDomain.Shared;
 
-namespace Pagamento.Features.Delete;
+namespace SharedDomain.Features.WeatherForecasts.Delete;
 public record DeleteWeatherForecastEvent : IEvent
 {
     public Guid Id { get; init; }

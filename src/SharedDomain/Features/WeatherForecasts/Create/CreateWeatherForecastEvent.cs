@@ -1,6 +1,6 @@
 using SharedDomain.Shared;
 
-namespace Pagamento.Features.Create;
+namespace SharedDomain.Features.WeatherForecasts.Create;
 public record CreateWeatherForecastEvent : IEvent
 {
     public Guid Id { get; init; }

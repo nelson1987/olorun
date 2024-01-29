@@ -1,6 +1,7 @@
-using Pagamento.Services;
+using SharedDomain.Features.WeatherForecasts;
+using SharedDomain.Shared;
 
-namespace Pagamento.Features.Delete;
+namespace SharedDomain.Features.WeatherForecasts.Delete;
 public class DeleteWeatherForecastConsumer :
         EventConsumer<DeleteWeatherForecastEvent>
 {
