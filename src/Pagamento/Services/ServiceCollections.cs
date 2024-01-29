@@ -2,6 +2,7 @@ using Pagamento.Features;
 using Pagamento.Features.Create;
 using Pagamento.Features.Delete;
 using SharedDomain.Features.Pagamentos;
+using SharedDomain.Shared;
 
 namespace Pagamento.Services;
 public static class Service
@@ -24,8 +25,8 @@ public static class Service
     {
         services.AddScoped<IEventProducer<CreateWeatherForecastEvent>, CreateWeatherForecastProducer>();
         services.AddScoped<IEventProducer<DeleteWeatherForecastEvent>, DeleteWeatherForecastProducer>();
-        services.AddScoped<ITesteMessageConsumer<CreateWeatherForecastEvent>, CreateWeatherForecastConsumer>();
-        services.AddScoped<ITesteMessageConsumer<DeleteWeatherForecastEvent>, DeleteWeatherForecastConsumer>();
+        services.AddScoped<IEventConsumer<CreateWeatherForecastEvent>, CreateWeatherForecastConsumer>();
+        services.AddScoped<IEventConsumer<DeleteWeatherForecastEvent>, DeleteWeatherForecastConsumer>();
         return services;
     }
 }

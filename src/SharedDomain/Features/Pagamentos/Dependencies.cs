@@ -23,13 +23,13 @@ public static class Dependencies
     }
     private static IServiceCollection AddConsumers(this IServiceCollection services)
     {
-        services.AddScoped<IEventConsumer<PagamentoIncluidoEvent>, PagamentoIncluidoConsumer>();
+        //services.AddScoped<IEventConsumer<PagamentoIncluidoEvent>, PagamentoIncluidoConsumer>();
         return services;
     }
     private static IServiceCollection AddProducers(this IServiceCollection services)
     {
-        services.AddScoped<IEventProducer<PagamentoSubmetidoEvent>, PagamentoSubmetidoEventProducer>();        
-        services.AddScoped<IEventProducer<PagamentoIncluidoEvent>, PagamentoIncluidoProducer>();
+        //services.AddScoped<IEventProducer<PagamentoSubmetidoEvent>, PagamentoSubmetidoEventProducer>();        
+        //services.AddScoped<IEventProducer<PagamentoIncluidoEvent>, PagamentoIncluidoProducer>();
         return services;
     }
     private static IServiceCollection AddEvents(this IServiceCollection services)
