@@ -1,4 +1,3 @@
-using FluentResults;
 using SharedDomain.Features.WeatherForecasts.Create;
 using SharedDomain.Features.WeatherForecasts.Delete;
 using SharedDomain.Features.WeatherForecasts.Entities;
@@ -18,11 +17,6 @@ public interface IWeatherForecastHandler
 
 public class WeatherForecastHandler : IWeatherForecastHandler
 {
-    private string[] summaries = new[]
-    {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
     private readonly IWeatherForecastRepository _repository;
     private readonly IEventProducer<CreateWeatherForecastEvent> _createProducer;
     private readonly IEventProducer<DeleteWeatherForecastEvent> _deleteProducer;
@@ -41,13 +35,6 @@ public class WeatherForecastHandler : IWeatherForecastHandler
 
     public async Task PostAsync(CreateWeatherForecastCommand command, CancellationToken cancellationToken)
     {
-        //var command = new CreateWeatherForecastCommand()
-        //{
-        //    Date = DateTime.Now.AddDays(1),
-        //    Id = Guid.NewGuid(),
-        //    Summary = summaries[Random.Shared.Next(summaries.Length)],
-        //    TemperatureC = Random.Shared.Next(-20, 55)
-        //};
         await _createProducer.Send(command.MapTo<CreateWeatherForecastEvent>(), cancellationToken);
     }
 

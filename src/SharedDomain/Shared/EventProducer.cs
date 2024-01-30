@@ -27,11 +27,11 @@ public class EventProducer<TMessage> : IEventProducer<TMessage> where TMessage :
 
     public string TopicName { get; }
 
-    public async Task Send(TMessage message, CancellationToken cancellationToken)
+    public async Task Send(TMessage @event, CancellationToken cancellationToken)
     {
         await _producer.ProduceAsync(TopicName, new Message<Null, TMessage>
         {
-            Value = message
+            Value = @event
         }, cancellationToken);
     }
 }

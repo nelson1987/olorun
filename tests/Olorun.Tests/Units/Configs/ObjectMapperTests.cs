@@ -1,4 +1,6 @@
-﻿namespace Olorun.Tests.Units.Configs;
+﻿using SharedDomain.Configs;
+
+namespace Olorun.Tests.Units.Configs;
 public class ObjectMapperTests
 {
     [Fact]

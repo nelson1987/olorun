@@ -16,4 +16,3 @@ public sealed class MongoFixture
         MongoDatabase = mongoClient.GetDatabase(mongoUrl.DatabaseName);
     }
 }
-//public interface IEventClientConsumers { }
