@@ -6,7 +6,7 @@ using SharedDomain.Features.WeatherForecasts.Create;
 using SharedDomain.Shared;
 using System.Diagnostics;
 
-namespace Olorun.Integration.Configs.Environments;
+namespace Olorun.Tests.Configs.Environments;
 
 public class Api : WebApplicationFactory<Program>
 {

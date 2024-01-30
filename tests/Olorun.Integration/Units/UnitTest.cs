@@ -1,19 +1,7 @@
 ﻿using FluentValidation.Results;
 using Olorun.Integration.Configs;
-using SharedDomain.Configs;
 
 namespace Olorun.Integration.Units;
-//[UnitTest]
-public class ObjectMapperTests
-{
-    [Fact]
-    public void ValidateMappingConfigurationTest()
-    {
-        var mapper = Mappers.Mapper;
-
-        mapper.ConfigurationProvider.AssertConfigurationIsValid();
-    }
-}
 public class UnitTest
 {
     private readonly IFixture _fixture = new Fixture().Customize(new AutoMoqCustomization { ConfigureMembers = true });

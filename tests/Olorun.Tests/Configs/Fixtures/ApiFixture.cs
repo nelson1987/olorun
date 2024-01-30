@@ -1,7 +1,7 @@
-﻿using Olorun.Integration.Configs.Environments;
+﻿using Olorun.Tests.Configs.Environments;
 using System.Net.Http.Headers;
 
-namespace Olorun.Integration.Configs.Fixtures;
+namespace Olorun.Tests.Configs.Fixtures;
 
 public sealed class ApiFixture : IAsyncDisposable
 {
