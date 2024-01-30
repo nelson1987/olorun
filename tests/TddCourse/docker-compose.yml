@@ -1,0 +1,24 @@
+version: '3.4'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: noSql
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+  #     SALES_PASSWORD: ${SALES_PASSWORD:-sales}
+  #     WAREHOUSE_PASSWORD: ${WAREHOUSE_PASSWORD:-warehouse}
+    ports:
+      - "27017:27017"
+  #   # networks:
+  #   #   - services
+    entrypoint: [ "/usr/bin/mongod", "--config", "/data/config/ssl.conf", "--bind_ip_all", "--replSet", "dbrs" ]  
+  #   volumes:
+  #     - ./src/scripts/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
+  #     # - ./.db/mongo1:/data/db
+  #     # #- ./wait-for-mongodb.sh:/scripts/wait-for-mongodb.sh
+  #     # - ./ssl:/data/ssl
+  #     # - ./config:/data/config
+#    

@@ -1,6 +1,20 @@
 # olorun
 Netcore + Mongodb + Postgresql + Redis + Kafka
 
+Criaremos uma API de Cadastro
+Um método Get que retornará todas as contas cadastradas
+Um método Post que criará uma conta nova
+
+Feature - Buscar contas cadastradas
+Será requisitado à base cadastro todas as contas cadastradas.
+
+Feature - Criar conta
+Teremos uma Api Gateway de Cadastro, ela fará uma requisição HTTP para a Api de AntiFraude
+ao retornar sucesso, ela enviará um evento para o tópico conta-cadastrada.
+Este tópico será consumido por 2 APIs Conta e Cliente, cada 1 delas guardará o dado em seus respectivos bancos de dados, e enviará um evento para o tópico conta aberta.
+Teremos um worker de Contas abertas que alterará esses dados em na base de cadastro.
+
+
 # references
 https://github.com/aspnetrun/run-aspnetcore-microservices 
 https://medium.com/c-sharp-progarmming/the-basics-of-net-integration-testing-2ad1a0de54ed 
