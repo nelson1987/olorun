@@ -1,12 +1,12 @@
-﻿using Confluent.Kafka;
-using FluentResults;
+﻿using FluentResults;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Olorun.Integration.Configs.Environments;
-using Pagamento.Services;
 using SharedDomain.Features.WeatherForecasts.Create;
 using SharedDomain.Shared;
+using System.Net.Http.Headers;
+using System.Threading;
 
 namespace Olorun.Integration.Configs.Fixtures;
 
@@ -20,9 +20,17 @@ public sealed class ApiFixture : IAsyncDisposable
         Client = Server.CreateDefaultClient();
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        throw new NotImplementedException();
+        Client.Dispose();
+        await Server.DisposeAsync();
+    }
+    public void Reset()
+    {
+        Client.DefaultRequestHeaders.Clear();
+
+        Client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue(scheme: "TestScheme");
     }
 }
 public sealed class KafkaFixture
@@ -59,6 +67,33 @@ public sealed class KafkaFixture
         if (cts.IsCancellationRequested)
             throw new TimeoutException("Unable to warm up Kafka.");
     }
+    public void Reset()
+    {
+        //ClearTopicsMessages();
+    }
+
+    private void ClearTopicsMessages()
+    {
+        foreach (var topic in Topics)
+            ConsumeAll<object>(topic, msTimeout: 5);
+    }
+    public IReadOnlyList<T> ConsumeAll<T>(string topic, int msTimeout = 150)
+    {
+        var messages = new List<T>();
+        while (true)
+        {
+            var result = Consume<T>(topic, msTimeout);
+            if (result.IsSuccess)
+            {
+                messages.Add(result.Value);
+                continue;
+            }
+
+            break;
+        }
+
+        return messages;
+    }
     public async Task ProduceMessageAsync(CreateWeatherForecastEvent message)
     {
         using var cancellationToken = ExpiringCancellationToken();
@@ -70,9 +105,10 @@ public sealed class KafkaFixture
         return _consumer.Consume(cancellationToken.Token).Result;
     }
 
-    public Task<bool> Produce<T>(string topic, T data)
+    public async Task<bool> Produce<T>(string topic, T data)
     {
         //using var cancellationToken = ExpiringCancellationToken();
+
         //return _eventClient.Produce(
         //        new EventClientRequest<T>(data, topic, "subject"),
         //        obj => JsonConvert.SerializeObject(obj, new StringEnumConverter()),
@@ -127,7 +163,8 @@ public sealed class KafkaFixture
         //    .Select(x => x.GetField("Name")!.GetValue(null))
         //    .Cast<string>()
         //    .ToArray();
-        throw new NotImplementedException();
+
+        return new string[] { "weatherforecast-requested", "weatherforecast-responded", "weather-topic" };
     }
 }
 public sealed class MongoFixture

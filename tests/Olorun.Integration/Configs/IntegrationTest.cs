@@ -17,15 +17,16 @@ public abstract class IntegrationTest : IAsyncLifetime
         MongoFixture = integrationTestFixture.MongoFixture;
     }
 
-    public Task InitializeAsync()
+    public virtual async Task InitializeAsync()
     {
-        //throw new NotImplementedException();
-        return Task.CompletedTask;
+        ApiFixture.Reset();
+        KafkaFixture.Reset();
+        //HttpServerFixture.Reset();
+        //await MongoFixture.Reset();
     }
 
     public Task DisposeAsync()
     {
-        //throw new NotImplementedException();
         return Task.CompletedTask;
     }
 }

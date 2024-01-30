@@ -1,4 +1,5 @@
 ﻿using SharedDomain.Features.WeatherForecasts;
+using SharedDomain.Features.WeatherForecasts.Create;
 using SharedDomain.Features.WeatherForecasts.Entities;
 
 namespace Pagamento.Services
@@ -19,9 +20,9 @@ namespace Pagamento.Services
             .WithName("PutWeatherForecast")
             .WithOpenApi();
 
-            todoItems.MapPost("/", async ([FromServices] IWeatherForecastHandler handler, CancellationToken cancellationToken) =>
+            todoItems.MapPost("/", async (CreateWeatherForecastCommand command, [FromServices] IWeatherForecastHandler handler, CancellationToken cancellationToken) =>
             {
-                await handler.PostAsync(cancellationToken);
+                await handler.PostAsync(command, cancellationToken);
             })
             .WithName("PostWeatherForecast")
             .WithOpenApi();

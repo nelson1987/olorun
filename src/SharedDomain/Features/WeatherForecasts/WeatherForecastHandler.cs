@@ -11,7 +11,7 @@ public interface IWeatherForecastHandler
 
     Task<WeatherForecast> PutAsync(Guid id, CancellationToken cancellationToken);
 
-    Task PostAsync(CancellationToken cancellationToken);
+    Task PostAsync(CreateWeatherForecastCommand command, CancellationToken cancellationToken);
 
     Task DeleteAsync(Guid idClima, CancellationToken cancellationToken);
 }
@@ -39,15 +39,15 @@ public class WeatherForecastHandler : IWeatherForecastHandler
         return await _repository.GetAsync();
     }
 
-    public async Task PostAsync(CancellationToken cancellationToken)
+    public async Task PostAsync(CreateWeatherForecastCommand command, CancellationToken cancellationToken)
     {
-        var command = new CreateWeatherForecastCommand()
-        {
-            Date = DateTime.Now.AddDays(1),
-            Id = Guid.NewGuid(),
-            Summary = summaries[Random.Shared.Next(summaries.Length)],
-            TemperatureC = Random.Shared.Next(-20, 55)
-        };
+        //var command = new CreateWeatherForecastCommand()
+        //{
+        //    Date = DateTime.Now.AddDays(1),
+        //    Id = Guid.NewGuid(),
+        //    Summary = summaries[Random.Shared.Next(summaries.Length)],
+        //    TemperatureC = Random.Shared.Next(-20, 55)
+        //};
         await _createProducer.Send(command.MapTo<CreateWeatherForecastEvent>(), cancellationToken);
     }
 

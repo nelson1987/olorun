@@ -13,15 +13,15 @@ public class IntegrationTestFixture : IAsyncLifetime
         MongoFixture = new MongoFixture(ApiFixture.Server);
     }
 
-    public Task InitializeAsync()
+    public async Task InitializeAsync()
     {
-        //throw new NotImplementedException();
-        return Task.CompletedTask;
+       //await KafkaFixture.WarmUp();
     }
 
-    public Task DisposeAsync()
+    public async Task DisposeAsync()
     {
+        await ApiFixture.DisposeAsync();
         //throw new NotImplementedException();
-        return Task.CompletedTask;
+        //return Task.CompletedTask;
     }
 }

@@ -17,13 +17,13 @@ namespace Olorun.Integration.Integrations
         private WeatherForecast _weatherForecast { get; set; }
         public IntegrationApiTest(IntegrationTestFixture integrationTestFixture) : base(integrationTestFixture)
         {
+            _weatherForecast = WeatherForecastFactory.Create();
         }
 
         [Fact]
         public async Task Get()
         {
             // Act
-            _weatherForecast = WeatherForecastFactory.Create();
 
             await MongoFixture.MongoDatabase
                 .GetCollection<WeatherForecast>("invoices")//nameof(WeatherForecast))
@@ -52,28 +52,44 @@ namespace Olorun.Integration.Integrations
             //response.Should().Be400BadRequest().And
             //                 .MatchInContent("*You need at least one filter value filled.*");
         }
-        
+
         [Fact]
-        public async Task Put_with_Success()
+        public async Task Post_with_Success()
         {
-            var response = await ApiFixture.Client.PostAsync($"/api/v1/weatherforecasts", null);
-            response.Should().Be201Created();
-            //response.Should().Be400BadRequest().And
-            //                 .MatchInContent("*You need at least one filter value filled.*");
+            var command = new CreateWeatherForecastCommand()
+            {
+                Date = DateTime.Now.AddDays(1),
+                Id = Guid.NewGuid(),
+                Summary = "calor",
+                TemperatureC = Random.Shared.Next(-20, 55)
+            };
+            var updateFinancialDataAsString = JsonConvert.SerializeObject(command);
+            using var stringContent = new StringContent(updateFinancialDataAsString, Encoding.UTF8, "application/json");
+
+            var response = await ApiFixture.Client.PostAsync($"/api/v1/weatherforecasts", stringContent);
+            var receivedMessage = await KafkaFixture.ConsumeMessageAsync();
+            response.Should().Be200Ok();
+            receivedMessage.Should().Be(command.MapTo<CreateWeatherForecastEvent>());
         }
 
         [Fact]
         public async Task GivenEventProduced_WhenConsumed_ThenShouldReceiveSameEvent()
         {
             // Arrange
-            var message = _weatherForecast.MapTo<CreateWeatherForecastEvent>();
+            var message = new CreateWeatherForecastEvent()
+            {
+                Date = DateTime.Now.AddDays(1),
+                Id = Guid.NewGuid(),
+                Summary = "calor",
+                TemperatureC = Random.Shared.Next(-20, 55)
+            };
 
             // Act
-            await KafkaFixture.ProduceMessageAsync(message);
+            await KafkaFixture.Produce<CreateWeatherForecastEvent>("weatherforecast-requested",message);
             var receivedMessage = await KafkaFixture.ConsumeMessageAsync();
 
             // Assert
-            Assert.Equal(message, receivedMessage);
+            receivedMessage.Should().Be(message);
         }
     }
     public static class WeatherForecastFactory
