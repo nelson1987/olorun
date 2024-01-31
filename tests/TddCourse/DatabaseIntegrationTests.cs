@@ -374,7 +374,7 @@ namespace TddCourse
         public KafkaFixture KafkaFixture { get; }
         public HttpServerFixture HttpServerFixture { get; }
         public MongoFixture MongoFixture { get; }
-        public IntegrationTests(IntegrationTestFixture integrationTestFixture)
+        protected IntegrationTests(IntegrationTestFixture integrationTestFixture)
         {
             ApiFixture = integrationTestFixture.ApiFixture;
             KafkaFixture = integrationTestFixture.KafkaFixture;
