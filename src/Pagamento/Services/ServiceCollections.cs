@@ -1,6 +1,7 @@
 using SharedDomain;
 using SharedDomain.Features;
 using SharedDomain.Features.WeatherForecasts;
+using System.Configuration;
 
 namespace Pagamento.Services;
 public static class Service
@@ -10,13 +11,25 @@ public static class Service
         services
                 .AddScoped<IWeatherForecastHandler, WeatherForecastHandler>()
                 .AddScoped<IPessoaReadRepository, PessoaReadRepository>()
+                //CashReserveConsumer : Consumer<OrdersRenegotiationRespondedEvent>
                 .AddDomain();
         return services;
     }
 
-    public static IServiceCollection AddMongoDb(this IServiceCollection services, ConfigurationManager configuration)
+    internal static IServiceCollection AddScopedHostedService<TConsumer>(this IServiceCollection services, IConfiguration configuration)
+        where TConsumer : class, IConsumer
     {
-        services.Configure<BookStoreDatabaseSettings>(configuration.GetSection("BookStoreDatabase"));
+        var shouldAdd = configuration.GetValue($"HostedServices:{typeof(TConsumer).Name}:ShouldExecute", defaultValue: false);
+
+        if (shouldAdd)
+            services.AddScoped<TConsumer>().AddHostedService<ConsumerWorker<TConsumer>>();
+
+        return services;
+    }
+    public static IServiceCollection AddMongoDb(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<BookStoreDatabaseSettings>(configuration.GetSection("BookStoreDatabase"))
+                .AddScopedHostedService<CashReserveConsumer>(configuration);
         return services;
     }
 

@@ -2,10 +2,43 @@
 using Confluent.SchemaRegistry;
 using FluentResults;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Text;
 
 namespace SharedDomain
 {
+    public sealed class ConsumerWorker<TConsumer> : BackgroundService where TConsumer : IConsumer
+    {
+        private readonly IServiceProvider _provider;
+
+        public ConsumerWorker(IServiceProvider provider) => _provider = provider;
+
+        public override Task StartAsync(CancellationToken cancellationToken)
+        {
+            //Logger.LogMessage($"{typeof(TConsumer).Name} worker start!", LogSeverity.Notice);
+            return base.StartAsync(cancellationToken);
+        }
+
+        public override Task StopAsync(CancellationToken cancellationToken)
+        {
+            //Logger.LogMessage($"{typeof(TConsumer).Name} worker stop!", LogSeverity.Notice);
+            return base.StopAsync(cancellationToken);
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            await Task.Yield();
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await using var scope = _provider.CreateAsyncScope();
+                var consumer = scope.ServiceProvider.GetRequiredService<TConsumer>();
+
+                await consumer.Consume(stoppingToken);
+            }
+        }
+    }
     #region Pessoa Entity
     public class CashReserveConsumer : Consumer<OrdersRenegotiationRespondedEvent>
     {
@@ -23,7 +56,7 @@ namespace SharedDomain
             throw new NotImplementedException();
         }
     }
-    public record OrdersRenegotiationRespondedEvent();
+    public record OrdersRenegotiationRespondedEvent(Guid Id, string Nome, DateTime Criacao);
     public record CashReserveResponse();
     public record CashReserveRequest();
     
@@ -910,7 +943,7 @@ namespace SharedDomain
             return new EventClientData
             {
                 Id = Guid.NewGuid(),
-                Data = request.ShouldCompressData ? request.Data.ToCompressedHex(serializer) : serializer(request.Data),
+                //Data = request.ShouldCompressData ? request.Data.ToCompressedHex(serializer) : serializer(request.Data),
                 EventTime = DateTime.UtcNow,
                 EventType = request.Data.GetType().Name,
                 Subject = request.Subject,

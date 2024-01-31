@@ -1,5 +1,4 @@
 using Pagamento.Services;
-using SharedDomain;
 
 var builder = WebApplication.CreateBuilder(args);
 
