@@ -1,4 +1,5 @@
 using Pagamento.Services;
+using SharedDomain;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +10,9 @@ builder.Services.AddSwaggerGen();
 //Mongo
 builder.Services
                 .AddDependencies()
-                .AddMongoDb(builder.Configuration);
-                //Redis
+                .AddMongoDb(builder.Configuration)
+                .AddEvents(builder.Configuration);
+//Redis
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())

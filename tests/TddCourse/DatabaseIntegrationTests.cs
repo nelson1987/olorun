@@ -1,8 +1,8 @@
 using AutoFixture;
 using FluentAssertions;
 using FluentResults;
+using FluentValidation;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +11,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using SharedDomain;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
@@ -22,49 +23,6 @@ using Xunit.Categories;
 
 namespace TddCourse
 {
-    #region Pessoa Entity
-    public static class PessoaFactory
-    {
-        public static Pessoa Create()
-        {
-            return new Pessoa(Guid.NewGuid(), "Nome");
-        }
-    };
-    public record Pessoa(Guid Id, string Nome);
-    public interface IConsumer
-    {
-        Task Consume(CancellationToken cancellationToken);
-    }
-    public abstract class Consumer<TEvent> : IConsumer
-    {
-        public Task Consume(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    public record CashReserveResponse();
-    public record CashReserveRequest();
-    public class CashReserveConsumer : Consumer<CashReserveRequest>
-    {
-    }
-
-    #endregion
-
-    #region Repository
-    public interface IPessoaReadRepository
-    {
-        Task<Pessoa> GetById(Guid id);
-    }
-
-    public class PessoaReadRepository : IPessoaReadRepository
-    {
-        public Task<Pessoa> GetById(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    #endregion
-
     #region Fixtures
     public class IntegrationTestFixture : IAsyncLifetime
     {
@@ -78,7 +36,7 @@ namespace TddCourse
             ApiFixture = new ApiFixture();
             KafkaFixture = new KafkaFixture(ApiFixture.Server);
             HttpServerFixture = new HttpServerFixture();
-            MongoFixture = new MongoFixture(ApiFixture.Server);
+            //MongoFixture = new MongoFixture(ApiFixture.Server);
         }
         public async Task DisposeAsync()
         {
@@ -113,48 +71,6 @@ namespace TddCourse
             Client.Dispose();
             await Server.DisposeAsync();
         }
-    }
-    public interface IEventClient
-    {
-        Task<bool> Produce<T>(EventClientRequest<T> eventClientRequest, Func<object, object> value, CancellationToken token);
-        T Consume<T>(string topic, Func<string, T?> deserializeObject, CancellationToken token);
-    }
-    public class EventClient : IEventClient
-    {
-        public T Consume<T>(string topic, Func<string, T?> deserializeObject, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> Produce<T>(EventClientRequest<T> eventClientRequest, Func<object, object> value, CancellationToken token)
-        {
-            return Task.FromResult(true);
-        }
-    }
-    public interface IEventClientConsumers
-    {
-        T Get<T>(string topic);
-    }
-    public class EventClientConsumers : IEventClientConsumers
-    {
-        public T Get<T>(string topic)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    public record EventClientRequest<T>(T data, string topic, string subject);
-    public static class EventsTopics
-    {
-        public static class CashReservesResponded
-        {
-            public const string Name = "issuance-orders-created";
-
-            public enum Subjects
-            {
-                CashReservesResponded
-            }
-        }
-
     }
     public class KafkaFixture
     {
@@ -208,8 +124,6 @@ namespace TddCourse
 
         public Result<T> Consume<T>(string topic, int msTimeout = 150)
         {
-            return Result.Fail<T>("no messages found");
-            /*
             try
             {
                 if (typeof(T) == typeof(object))
@@ -221,7 +135,7 @@ namespace TddCourse
                     var consumeResult = _eventClientConsumers
                         .Get(topic)
                         .Consume(msTimeout);
-
+                    //
                     var isFailed = consumeResult == null || consumeResult.IsPartitionEOF;
                     return isFailed ? Result.Fail("A timeout has ocurred or end of partition found") : (T)new object();
                 }
@@ -237,7 +151,6 @@ namespace TddCourse
             {
                 return Result.Fail<T>("no messages found");
             }
-            */
         }
 
         public IReadOnlyList<T> ConsumeAll<T>(string topic, int msTimeout = 150)
@@ -321,15 +234,13 @@ namespace TddCourse
     }
     #endregion
 
+    #region Integration
     public class Api : WebApplicationFactory<Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
             => builder.UseEnvironment("Test")
                    .ConfigureTestServices(services =>
                    {
-                       services.AddScoped<IPessoaReadRepository, PessoaReadRepository>();
-                       services.AddScoped<IEventClient, EventClient>();
-                       services.AddScoped<IEventClientConsumers, EventClientConsumers>();
                    });
 
         internal Task Consume<TConsumer>(TimeSpan? timeout = null) where TConsumer : IConsumer
@@ -359,7 +270,6 @@ namespace TddCourse
         }
     }
 
-
     [CollectionDefinition(nameof(IntegrationCollection))]
     public class IntegrationCollection : ICollectionFixture<IntegrationTestFixture>
     {
@@ -379,19 +289,20 @@ namespace TddCourse
             ApiFixture = integrationTestFixture.ApiFixture;
             KafkaFixture = integrationTestFixture.KafkaFixture;
             HttpServerFixture = integrationTestFixture.HttpServerFixture;
-            MongoFixture = integrationTestFixture.MongoFixture;
+            //MongoFixture = integrationTestFixture.MongoFixture;
         }
 
-        public Task InitializeAsync()
+        public async Task InitializeAsync()
         {
-            throw new NotImplementedException();
+            ApiFixture.Reset();
+            KafkaFixture.Reset();
+            HttpServerFixture.Reset();
+            //await MongoFixture.Reset();
         }
 
-        public Task DisposeAsync()
-        {
-            throw new NotImplementedException();
-        }
+        public Task DisposeAsync() => Task.CompletedTask;
     }
+    #endregion
 
     public class ApiIntegrationTests : IntegrationTests
     {
@@ -423,8 +334,51 @@ namespace TddCourse
 
     public class ConsumerIntegrationTests : IntegrationTests
     {
-        private readonly CashReserveRequest _request;
+        private readonly OrdersRenegotiationRespondedEvent _request;
         public ConsumerIntegrationTests(IntegrationTestFixture integrationTestFixture) : base(integrationTestFixture)
+        {
+            _request = ObjectGenerator
+                .Build<OrdersRenegotiationRespondedEvent>()
+                .Create();
+        }
+
+        [Fact]
+        public async Task Test1()
+        {
+            // Arrange
+            await KafkaFixture.Produce(EventsTopics.WeatherforecastResponded.Name, _request);
+
+            // Act
+            await ApiFixture.Server.Consume<CashReserveConsumer>(TimeSpan.FromMinutes(1));
+            var cashReservesResponded = KafkaFixture.Consume<OrdersRenegotiationRespondedEvent>(EventsTopics.WeatherforecastResponded.Name).ValueOrDefault;
+
+            // Assert
+            // var response = GetOutputedResponses();
+        }
+        //private object GetOutputedResponses()
+        //{
+        //    var cashReservesResponded = KafkaFixture.Consume<CashReserveResponse>(EventsTopics.CashReservesResponded.Name).ValueOrDefault;
+        //    var creditFundingService = HttpServerFixture.AntifraudeServiceServer.LogEntries.Select(x => x.RequestMessage).ToList();
+
+        //    foreach (var request in creditFundingService)
+        //    {
+        //        request.Headers!.Remove("Integrated-TraceStack");
+        //        request.Headers!.Remove("IntegratedWebService-TraceStack");
+        //        request.Headers!.Remove("traceparent");
+        //    }
+
+        //    return new
+        //    {
+        //        cashReservesResponded,
+        //        creditFundingService
+        //    };
+        //}
+    }
+
+    public class ServerIntegrationTests : IntegrationTests
+    {
+        private readonly CashReserveRequest _request;
+        public ServerIntegrationTests(IntegrationTestFixture integrationTestFixture) : base(integrationTestFixture)
         {
         }
 
@@ -449,7 +403,7 @@ namespace TddCourse
         }
         private object GetOutputedResponses()
         {
-            var cashReservesResponded = KafkaFixture.Consume<CashReserveResponse>(EventsTopics.CashReservesResponded.Name).ValueOrDefault;
+            var cashReservesResponded = KafkaFixture.Consume<CashReserveResponse>(EventsTopics.WeatherforecastResponded.Name).ValueOrDefault;
             var creditFundingService = HttpServerFixture.AntifraudeServiceServer.LogEntries.Select(x => x.RequestMessage).ToList();
 
             foreach (var request in creditFundingService)
