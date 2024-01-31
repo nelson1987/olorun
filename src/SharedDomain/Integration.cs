@@ -26,6 +26,7 @@ namespace SharedDomain
     public record OrdersRenegotiationRespondedEvent();
     public record CashReserveResponse();
     public record CashReserveRequest();
+    
     public static class PessoaFactory
     {
         public static Pessoa Create()
@@ -33,6 +34,7 @@ namespace SharedDomain
             return new Pessoa(Guid.NewGuid(), "Nome");
         }
     };
+
     public record Pessoa(Guid Id, string Nome);
 
     #endregion
@@ -42,6 +44,7 @@ namespace SharedDomain
     {
         Task Consume(CancellationToken cancellationToken);
     }
+    
     public abstract class Consumer<TEvent> : IConsumer
     {
         private readonly IEventCommunicationService _eventCommunicationService;
@@ -120,11 +123,13 @@ namespace SharedDomain
 
         protected abstract Task<Result> Handle(TEvent @event, CancellationToken cancellationToken);
     }
+    
     public interface IEventCommunicationService
     {
         Task<Result> ProduceEvent<TData>(TData data, string topic, string subject, CancellationToken cancellationToken = default);
         Result<TResult> SafeConsumeEvent<TResult>(string topic, CancellationToken cancellationToken);
     }
+    
     public class EventCommunicationService : IEventCommunicationService
     {
         private readonly IEventClient _eventClient;
@@ -167,6 +172,7 @@ namespace SharedDomain
             }
         }
     }
+    
     public interface IPessoaReadRepository
     {
         Task<Pessoa> GetById(Guid id);
@@ -179,11 +185,13 @@ namespace SharedDomain
             throw new NotImplementedException();
         }
     }
+
     public interface IEventClientProducer
     {
         IProducer<long, string> Producer { get; }
         bool EnableVerboseMessageLogging { get; }
     }
+
     public sealed class EventClientProducer : IEventClientProducer, IDisposable
     {
         public IProducer<long, string> Producer { get; }
@@ -207,6 +215,7 @@ namespace SharedDomain
             Producer.Dispose();
         }
     }
+
     public interface IEventClient
     {
         /// <summary>
@@ -283,6 +292,7 @@ namespace SharedDomain
         /// <returns>The event converted to the specified object type.</returns>
         EventClientResponse<TData> ConsumeResponse<TData>(string topicName, Func<string, TData> deserializer, CancellationToken cancellationToken = default);
     }
+
     public sealed class EventClient : IEventClient
     {
         private readonly IEventClientConsumers _consumers;
@@ -498,11 +508,13 @@ namespace SharedDomain
             }*/
         }
     }
+
     public interface IEventClientConsumers
     {
         IConsumer<long, string> Get(string topicName);
         bool EnableVerboseMessageLogging { get; }
     }
+
     public sealed class EventClientConsumers : IEventClientConsumers, IDisposable
     {
         private readonly Dictionary<string, IConsumer<long, string>> _consumers;
@@ -608,20 +620,58 @@ namespace SharedDomain
         }
     }
     #endregion
-    
+
+    public class EventsSettings
+    {
+        public static EventClientSettings GetSettings(IConfiguration configuration, bool useConsumers = true)
+        {
+            var settingsSection = configuration.GetSection("EventsSettings");
+            var bootstrapServers = settingsSection["BootstrapServers"];
+            var verboseLoggingEnabled = settingsSection.GetValue("EnableVerboseMessageLogging", defaultValue: false);
+            var producerCredential = GetCredential(settingsSection.GetSection("ProducerCredential"));
+            var consumerCredential = GetCredential(settingsSection.GetSection("ConsumerCredential"));
+
+            var eventSettings = new EventClientSettings(bootstrapServers)// EventClientSet tings(bootstrapServers, producerCredential, consumerCredential)
+            {
+                ProducerTopics = ProducerTopics(),
+                EnableVerboseMessageLogging = verboseLoggingEnabled
+            };
+
+            if (useConsumers)
+            {
+                eventSettings.ConsumerGroup = settingsSection["ConsumerGroup"];
+                eventSettings.ConsumerTopics = ConsumerTopics();
+            }
+
+            return eventSettings;
+        }
+
+        private static EventClientCredential GetCredential(IConfigurationSection section) => new(section["Username"], section["Password"]);
+
+        private static IList<string> ConsumerTopics()
+        {
+            return new[]
+            {
+            EventsTopics.WeatherforecastResponded.Name,
+        };
+        }
+
+        private static IList<string> ProducerTopics()
+        {
+            return new[]
+            {
+            EventsTopics.WeatherforecastResponded.Name,
+        };
+        }
+    }
     #region Settings
 
     public sealed class EventClientSettings
     {
-        /// <summary>
-        /// Initial list of brokers as a CSV list of broker host or host:port. The application
-        /// may also use `rd_kafka_brokers_add()` to add brokers during runtime. default:'' importance: high
-        /// </summary>
         public string BootstrapServers { get; private set; }
         public EventClientCredential ProducerCredential { get; private set; }
         public EventClientCredential ConsumerCredential { get; private set; }
         public SchemaRegistryCredential SchemaRegistryCredential { get; private set; }
-
         public string ConsumerGroup
         {
             get => ConsumerConfig.GroupId;
@@ -633,18 +683,7 @@ namespace SharedDomain
         public ConsumerConfig ConsumerConfig { get; private set; }
         public SchemaRegistryConfig SchemaRegistryConfig { get; private set; }
 
-        /// <summary>
-        /// Log every consumed and produced message
-        /// </summary>
-        /// <value>default is false</value>
         public bool EnableVerboseMessageLogging { get; set; } = false;
-        /// <summary>
-        /// Creates settings for unauthenticated events client, for producing and consuming purposes (this constructor
-        /// is useful for development and testing scenarios, since our hosted environments require authentication).
-        /// </summary>
-        /// <param name="bootstrapServers">Comma separated list of brokers.</param>
-        /// <param name="producerAndConsumerPrefix">Optional producer and consumer prefix.</param>
-        /// <param name="schemaRegistryCredential">Optional schema registry configuration.</param>
         public EventClientSettings(
             string bootstrapServers,
             string? producerAndConsumerPrefix = null,
@@ -808,6 +847,7 @@ namespace SharedDomain
 
         public string GetBasicAuthUserInfo() => $"{_username}:{_password}";
     }
+
     public readonly struct EventClientRequest<TData>
     {
         public TData Data { get; }
@@ -830,6 +870,7 @@ namespace SharedDomain
             Metadata = metadata;
         }
     }
+
     public static class EventsTopics
     {
         public static class WeatherforecastResponded
@@ -843,6 +884,7 @@ namespace SharedDomain
         }
 
     }
+
     public sealed class EventClientData
     {
         public Guid Id { get; set; }
@@ -853,9 +895,6 @@ namespace SharedDomain
         public string Data { get; set; }
         public bool? IsDataCompressed { get; set; }
         public string TraceKey { get; set; }
-
-        //public static EventClientData Create<TData>(EventClientRequest<TData> request) =>
-        //    Create(request, (data) => JsonSerializer.Serialize(data));
 
         public static EventClientData Create<TData>(EventClientRequest<TData> request, Func<object, string> serializer)
         {
@@ -871,7 +910,7 @@ namespace SharedDomain
             return new EventClientData
             {
                 Id = Guid.NewGuid(),
-                //Data = request.ShouldCompressData ? request.Data.ToCompressedHex(serializer) : serializer(request.Data),
+                Data = request.ShouldCompressData ? request.Data.ToCompressedHex(serializer) : serializer(request.Data),
                 EventTime = DateTime.UtcNow,
                 EventType = request.Data.GetType().Name,
                 Subject = request.Subject,
@@ -894,6 +933,7 @@ namespace SharedDomain
             Metadata = metadata;
         }
     }
+    
     public class EventMessageBuilder : MessageBuilder<long, string>
     {
         private readonly Func<object, string> _serializer;
@@ -910,6 +950,7 @@ namespace SharedDomain
             return this;
         }
     }
+    
     public static class EventMessageHeader
     {
         public static byte[] Encode(string value) =>

@@ -187,7 +187,7 @@ namespace TddCourse
                 .ToArray();
         }
     }
-    public class HttpServerFixture : IDisposable
+    public sealed class HttpServerFixture : IDisposable
     {
         public WireMockServer ContaServiceServer { get; } = WireMockServer.Start(port: 9080);
         public WireMockServer ClienteServiceServer { get; } = WireMockServer.Start(port: 9081);
