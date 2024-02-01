@@ -24,4 +24,5 @@ if (app.Environment.IsDevelopment())
 app.AddWeatherForecastEndpoints();
 
 app.Run();
+
 public partial class Program { }

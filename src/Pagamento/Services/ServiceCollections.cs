@@ -1,7 +1,7 @@
 using SharedDomain;
 using SharedDomain.Features;
 using SharedDomain.Features.WeatherForecasts;
-using System.Configuration;
+
 
 namespace Pagamento.Services;
 public static class Service
@@ -11,6 +11,7 @@ public static class Service
         services
                 .AddScoped<IWeatherForecastHandler, WeatherForecastHandler>()
                 .AddScoped<IPessoaReadRepository, PessoaReadRepository>()
+                //.AddIntegrationTests()
                 //CashReserveConsumer : Consumer<OrdersRenegotiationRespondedEvent>
                 .AddDomain();
         return services;
@@ -28,8 +29,7 @@ public static class Service
     }
     public static IServiceCollection AddMongoDb(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<BookStoreDatabaseSettings>(configuration.GetSection("BookStoreDatabase"))
-                .AddScopedHostedService<CashReserveConsumer>(configuration);
+        services.Configure<BookStoreDatabaseSettings>(configuration.GetSection("BookStoreDatabase"));
         return services;
     }
 
@@ -44,7 +44,7 @@ public static class Service
     {
         return services
             .AddSingleton<IEventClientConsumers>(x => new EventClientConsumers(eventClientSettings))
-            .AddSingleton<IEventClientProducer>(x => new EventClientProducer(eventClientSettings));
+            .AddSingleton<SharedDomain.IEventClientProducer>(x => new SharedDomain.EventClientProducer(eventClientSettings));
     }
 
     public static IServiceCollection AddEvents(this IServiceCollection services, IConfiguration configuration, bool useConsumers = true)
@@ -54,7 +54,7 @@ public static class Service
         services.AddHealthChecks();
         //.AddHealthChecksConfluentKafka(eventsSettings, HealthStatus.Degraded);
 
-        services.AddSingleton<IEventCommunicationService, EventCommunicationService>();
+        services.AddSingleton<SharedDomain.IEventCommunicationService, SharedDomain.EventCommunicationService>();
 
         return services;
     }

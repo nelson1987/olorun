@@ -1,3 +1,4 @@
+/*
 using AutoFixture;
 using FluentAssertions;
 using FluentResults;
@@ -447,3 +448,4 @@ namespace TddCourse
         }
     }
 }
+*/

@@ -8,6 +8,23 @@ using System.Text;
 
 namespace SharedDomain
 {
+    public class CashReserveConsumer : Consumer<OrdersRenegotiationRespondedEvent>
+    {
+        public override string Topic => EventsTopics.WeatherforecastResponded.Name;
+        public override string Subject => nameof(EventsTopics.WeatherforecastResponded.Subjects.WeatherforecastResponded);
+        public override string ConsumerName => nameof(CashReserveConsumer);
+
+
+        public CashReserveConsumer(
+        IEventCommunicationService eventCommunicationService,
+                IConfiguration configuration) : base(eventCommunicationService, configuration) { }
+
+        protected override Task<Result> Handle(OrdersRenegotiationRespondedEvent @event, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public record OrdersRenegotiationRespondedEvent(Guid Id, string Nome, DateTime Criacao);
     public sealed class ConsumerWorker<TConsumer> : BackgroundService where TConsumer : IConsumer
     {
         private readonly IServiceProvider _provider;
@@ -40,23 +57,6 @@ namespace SharedDomain
         }
     }
     #region Pessoa Entity
-    public class CashReserveConsumer : Consumer<OrdersRenegotiationRespondedEvent>
-    {
-        public override string Topic => EventsTopics.WeatherforecastResponded.Name;
-        public override string Subject => nameof(EventsTopics.WeatherforecastResponded.Subjects.WeatherforecastResponded);
-        public override string ConsumerName => nameof(CashReserveConsumer);
-
-
-        public CashReserveConsumer(
-        IEventCommunicationService eventCommunicationService,
-                IConfiguration configuration) : base(eventCommunicationService, configuration) { }
-
-        protected override Task<Result> Handle(OrdersRenegotiationRespondedEvent @event, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    public record OrdersRenegotiationRespondedEvent(Guid Id, string Nome, DateTime Criacao);
     public record CashReserveResponse();
     public record CashReserveRequest();
     
@@ -338,82 +338,21 @@ namespace SharedDomain
             _producer = producer;
         }
 
-        /// <summary>
-        /// Produces an event on a topic.
-        /// </summary>
-        /// <typeparam name="TData">The object that will be posted on the given topic.</typeparam>
-        /// <param name="request">
-        /// It has all the information needed to post the event.
-        /// <list type="bullet">
-        /// <item>"Data": The object that will be posted on the given topic.</item>
-        /// <item>"Topic": The topic name that will receive the event.</item>
-        /// <item>"Subject": The subject of the event.</item>
-        /// <item>"ShouldCompressData": It indicates if the object will be compressed before posting it on the topic (lz4block).</item>
-        /// </list>
-        /// </param>
-        /// <param name="cancellationToken">The cancellation token to stop the process if needed.</param>
-        /// <returns>A boolean indicating if the post was successfully executed.</returns>
         //public async Task<bool> Produce<TData>(EventClientRequest<TData> request, CancellationToken cancellationToken = default) =>
         //    await ProduceEvent(request, (data) => JsonSerializer.Serialize(data), cancellationToken);
 
-        /// <summary>
-        /// Produces an event on a topic.
-        /// </summary>
-        /// <typeparam name="TData">The object that will be posted on the given topic.</typeparam>
-        /// <param name="request">
-        /// It has all the information needed to post the event.
-        /// <list type="bullet">
-        /// <item>"Data": The object that will be posted on the given topic.</item>
-        /// <item>"Topic": The topic name that will receive the event.</item>
-        /// <item>"Subject": The subject of the event.</item>
-        /// <item>"ShouldCompressData": It indicates if the object will be compressed before posting it on the topic (lz4block).</item>
-        /// </list>
-        /// </param>
-        /// <param name="serializer">A func with a serializer specification to use upon the "request".</param>
-        /// <param name="cancellationToken">The cancellation token to stop the process if needed.</param>
-        /// <returns>A boolean indicating if the post was successfully executed.</returns>
         public async Task<bool> Produce<TData>(EventClientRequest<TData> request, Func<object, string> serializer, CancellationToken cancellationToken = default) =>
             await ProduceEvent(request, serializer, cancellationToken);
 
-        /// <summary>
-        /// Consumes an event from a topic.
-        /// </summary>
-        /// <typeparam name="TData">The object type that the method will convert from the event to it.</typeparam>
-        /// <param name="topicName">The topic name that the method will try to get an event from.</param>
-        /// <param name="cancellationToken">The cancellation token to stop the process if needed.</param>
-        /// <returns>The event converted to the specified object type.</returns>
         //public TData Consume<TData>(string topicName, CancellationToken cancellationToken = default) =>
         //    ConsumeResponse<TData>(topicName, cancellationToken).Data;
 
-        /// <summary>
-        /// Consumes an event from a topic, wrapped in a response that provides additional metadata (if available).
-        /// </summary>
-        /// <typeparam name="TData">The object type that the method will convert from the event to it.</typeparam>
-        /// <param name="topicName">The topic name that the method will try to get an event from.</param>
-        /// <param name="cancellationToken">The cancellation token to stop the process if needed.</param>
-        /// <returns>The event converted to the specified object type.</returns>
         //public EventClientResponse<TData> ConsumeResponse<TData>(string topicName, CancellationToken cancellationToken = default) =>
         //    ConsumeEvent(topicName, (data) => JsonSerializer.Deserialize<TData>(data), cancellationToken);
 
-        /// <summary>
-        /// Consumes an event from a topic
-        /// </summary>
-        /// <typeparam name="TData">The object type that the method will convert from the event to it.</typeparam>
-        /// <param name="topicName">The topic name that the method will try to get an event from.</param>
-        /// <param name="deserializer">A func with a deserializer specification to convert the event string to the specified object type.</param>
-        /// <param name="cancellationToken">The cancellation token to stop the process if needed.</param>
-        /// <returns>The event converted to the specified object type.</returns>
         public TData Consume<TData>(string topicName, Func<string, TData> deserializer, CancellationToken cancellationToken = default) =>
             ConsumeResponse(topicName, deserializer, cancellationToken).Data;
 
-        /// <summary>
-        /// Consumes an event from a topic, wrapped in a response that provides additional metadata (if available).
-        /// </summary>
-        /// <typeparam name="TData">The object type that the method will convert from the event to it.</typeparam>
-        /// <param name="topicName">The topic name that the method will try to get an event from.</param>
-        /// <param name="deserializer">A func with a deserializer specification to convert the event string to the specified object type.</param>
-        /// <param name="cancellationToken">The cancellation token to stop the process if needed.</param>
-        /// <returns>The event converted to the specified object type.</returns>
         public EventClientResponse<TData> ConsumeResponse<TData>(string topicName, Func<string, TData> deserializer, CancellationToken cancellationToken = default) =>
             ConsumeEvent(topicName, deserializer, cancellationToken);
 
